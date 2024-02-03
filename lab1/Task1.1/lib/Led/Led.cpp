@@ -10,7 +10,7 @@ void Led::setup(){
 
 void Led::setPowerState(bool state){
     powerState = state;
-    digitalWrite(ledPin, powerState);
+    digitalWrite(ledPin, !powerState);
 }
 
 bool Led::getPowerState(){
@@ -19,5 +19,5 @@ bool Led::getPowerState(){
 
 void Led::togglePowerState(){
     powerState = !powerState;
-    digitalWrite(ledPin, powerState);
+    digitalWrite(ledPin, !powerState);
 }
