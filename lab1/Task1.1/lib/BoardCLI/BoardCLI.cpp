@@ -13,13 +13,9 @@ void BoardCLI::setup(){
 void BoardCLI::getCommand(){
     if(Serial.available() > 0){
         input = Serial.read();
-
-        // Serial.print(int(input));
-        // Serial.print(" ");
+        Serial.print(input);
 
         if(input == NEW_LINE){
-            Serial.println();
-
             if(command_buffer == on_command){
                 Serial.println("Turning on the LED.");
                 led.setPowerState(true);
@@ -32,7 +28,6 @@ void BoardCLI::getCommand(){
                 Serial.println(invalid_command);
             }
 
-            Serial.println(command_buffer);
             command_buffer = "";
             Serial.print(command_prompt);
         }
@@ -42,7 +37,6 @@ void BoardCLI::getCommand(){
         }
         else if(input != BACKSPACE){
             command_buffer += input;
-            Serial.print(input);
         }
     }
 }
