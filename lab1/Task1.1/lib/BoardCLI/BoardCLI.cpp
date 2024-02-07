@@ -1,6 +1,6 @@
 #define NEW_LINE_1 13
 #define NEW_LINE_2 10
-#define BACKSPACE 127
+#define BACKSPACE 8
 #define SERIAL_BAUD_RATE 9600
 
 #include "BoardCLI.h"
@@ -18,6 +18,7 @@ void BoardCLI::getCommand(){
 
         if(input == NEW_LINE_1){
             Serial.println();
+
             if(command_buffer == on_command){
                 Serial.println("Turning on the LED.");
                 led.setPowerState(true);
@@ -34,7 +35,7 @@ void BoardCLI::getCommand(){
             Serial.print(command_prompt);
         }
         else if(input == BACKSPACE && command_buffer.length() > 0){
-            command_buffer.remove(command_buffer.length() - 1);
+            command_buffer = command_buffer.substring(0, command_buffer.length() - 1);
             Serial.print("\b \b");
         }
         else if(input != BACKSPACE && input != NEW_LINE_1 && input != NEW_LINE_2){
