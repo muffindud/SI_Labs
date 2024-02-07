@@ -4,11 +4,20 @@
   "editor": "wokwi",
   "parts": [
     { "type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {} },
-    { "type": "wokwi-led", "id": "led1", "top": -61.2, "left": 263, "attrs": { "color": "red" } }
+    { "type": "wokwi-led", "id": "led1", "top": -61.2, "left": 263, "attrs": { "color": "red" } },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 72,
+      "left": 258.65,
+      "rotate": 90,
+      "attrs": { "value": "200" }
+    }
   ],
   "connections": [
     [ "uno:13", "led1:C", "green", [ "v-28.2", "h-0.2" ] ],
-    [ "uno:5V", "led1:A", "red", [ "v19.7", "h137.6" ] ]
+    [ "led1:A", "r1:1", "green", [ "v0" ] ],
+    [ "r1:2", "uno:3.3V", "green", [ "h0", "v104.4", "h-134.4" ] ]
   ],
   "dependencies": {}
 }
