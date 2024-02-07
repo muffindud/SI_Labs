@@ -10,14 +10,14 @@ class BoardCLI{
         Led led;
 
         char input;
-        String command_buffer;
+        String command_buffer = "";
         
         String command_prompt = ">";
 
         String on_command = "led on";
         String off_command = "led off";
 
-        String invalid_command = "Invalid command.";
+        String invalid_command = "Invalid command: ";
 
         String command;
     public:
