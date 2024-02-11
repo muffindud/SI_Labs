@@ -3,10 +3,7 @@
 #define BACKSPACE 127
 #define SERIAL_BAUD_RATE 9600
 
-#include "BoardCLI.h"
-#include <stdio.h>
-
-BoardCLI::BoardCLI(Led diode): led(diode){} 
+#include "SerialIO.h"
 
 extern struct __file *__iob[];
 
@@ -31,7 +28,10 @@ FILE *stdioOpenStream(Stream *stream, boolean r, boolean w) {
     return f;
 }
 
-void BoardCLI::setup(){
+SerialIO::SerialIO(){
+} 
+
+void SerialIO::setup(){
     Serial.begin(SERIAL_BAUD_RATE);
 
     FILE *_stdin, *_stdout, *_stderr;
@@ -45,39 +45,52 @@ void BoardCLI::setup(){
     putchar(command_prompt);
 }
 
-void BoardCLI::getCommand(){
+void SerialIO::waitInput(){
     if(Serial.available() > 0){
         input = getchar();
 
         if(input == NEW_LINE_1){
             printf("%s", new_line.c_str());
-
-            if(command_buffer == on_command){
-                printf("%s", on_response.c_str());
-                
-                led.setPowerState(true);
-            }
-            else if(command_buffer == off_command){
-                printf("%s", off_response.c_str());
-
-                led.setPowerState(false);
-            }
-            else{
-                printf("%s%s\r\n", invalid_command.c_str(), command_buffer.c_str());
-            }
-
-            command_buffer = "";
-            putchar(command_prompt);
+            handleCommand();
         }
         else if(input == BACKSPACE && command_buffer.length() > 0){
             command_buffer = command_buffer.substring(0, command_buffer.length() - 1);
-            
             printf("%s", backspace.c_str());
         }
         else if(input != BACKSPACE && input != NEW_LINE_1 && input != NEW_LINE_2){
             command_buffer += input;
-            
             putchar(input);
         }
     }
+}
+
+void SerialIO::serialDisplay(String message){
+    printf("%s", message.c_str());
+}
+
+void SerialIO::handleBackspace(){
+    if(command_buffer.length() > 0){
+        command_buffer = command_buffer.substring(0, command_buffer.length() - 1);
+        printf("%s", backspace.c_str());
+    }
+}
+
+void SerialIO::printNewLine(){
+    printf("%s", new_line.c_str());
+    return;
+}
+
+void SerialIO::handleCommand(){
+    // TODO: Implement command handling
+    command_buffer = "";
+    putchar(command_prompt);
+}
+
+void SerialIO::clearCommandBuffer(){
+    command_buffer = "";
+    return;
+}
+
+String SerialIO::getCommand(){
+    return command_buffer;
 }
