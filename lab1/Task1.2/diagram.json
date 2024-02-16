@@ -8,7 +8,7 @@
     {
       "type": "wokwi-membrane-keypad",
       "id": "keypad1",
-      "top": -414.8,
+      "top": -395.6,
       "left": 456.8,
       "attrs": {}
     },
@@ -41,10 +41,16 @@
       "left": 402.65,
       "rotate": 90,
       "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd1",
+      "top": 179.2,
+      "left": 687.2,
+      "attrs": { "pins": "i2c" }
     }
   ],
   "connections": [
-    [ "uno:5V", "bb1:bp.25", "red", [ "v19.1", "h128.6" ] ],
     [ "bb1:26b.j", "uno:0", "green", [ "v0" ] ],
     [ "bb1:25b.j", "uno:1", "green", [ "v0" ] ],
     [ "bb1:24b.j", "uno:2", "green", [ "v0" ] ],
@@ -63,14 +69,14 @@
     [ "bb1:21b.j", "uno:5", "green", [ "v0" ] ],
     [ "bb1:20b.j", "uno:6", "green", [ "v0" ] ],
     [ "bb1:19b.j", "uno:7", "green", [ "v0" ] ],
-    [ "bb1:2t.d", "bb1:2b.h", "green", [ "v0" ] ],
+    [ "bb1:2t.d", "bb1:2b.h", "red", [ "v0" ] ],
     [ "bb1:22t.d", "bb1:22b.h", "green", [ "v0" ] ],
     [ "bb1:21b.h", "bb1:21t.d", "green", [ "v0" ] ],
     [ "bb1:20t.d", "bb1:20b.h", "green", [ "v0" ] ],
     [ "bb1:19b.h", "bb1:19t.d", "green", [ "v0" ] ],
-    [ "bb1:2b.j", "bb1:bp.1", "green", [ "v0" ] ],
-    [ "bb1:5t.d", "bb1:5b.h", "green", [ "v0" ] ],
-    [ "bb1:5b.j", "bb1:bp.4", "green", [ "v0" ] ],
+    [ "bb1:2b.j", "bb1:bp.1", "red", [ "v0" ] ],
+    [ "bb1:5t.d", "bb1:5b.h", "red", [ "v0" ] ],
+    [ "bb1:5b.j", "bb1:bp.4", "red", [ "v0" ] ],
     [ "led1:A", "bb1:2t.a", "", [ "$bb" ] ],
     [ "led1:C", "bb1:3t.a", "", [ "$bb" ] ],
     [ "led2:A", "bb1:5t.a", "", [ "$bb" ] ],
@@ -82,7 +88,12 @@
     [ "bb1:23t.d", "bb1:23b.h", "green", [ "v0" ] ],
     [ "bb1:24t.d", "bb1:24b.h", "green", [ "v0" ] ],
     [ "bb1:25t.d", "bb1:25b.h", "green", [ "v0" ] ],
-    [ "bb1:26t.d", "bb1:26b.h", "green", [ "v0" ] ]
+    [ "bb1:26t.d", "bb1:26b.h", "green", [ "v0" ] ],
+    [ "uno:5V", "bb1:bp.23", "red", [ "v19.1", "h119" ] ],
+    [ "lcd1:VCC", "bb1:bp.24", "red", [ "h-38.4", "v-75.8" ] ],
+    [ "lcd1:GND", "uno:GND.2", "black", [ "h-28.8", "v182.4", "h-128.7" ] ],
+    [ "uno:A4", "lcd1:SDA", "green", [ "v9.5", "h61.8", "v-144.2" ] ],
+    [ "lcd1:SCL", "uno:A5", "green", [ "h-9.6", "v125.1" ] ]
   ],
   "dependencies": {}
 }
