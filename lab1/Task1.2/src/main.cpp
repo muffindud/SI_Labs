@@ -4,20 +4,10 @@
 #define KEYPAD_ROWS 4
 #define KEYPAD_COLS 4
 
-// #define KEYPAD_ROW_1 11
-// #define KEYPAD_ROW_2 10
-// #define KEYPAD_ROW_3 9
-// #define KEYPAD_ROW_4 8
-
-// #define KEYPAD_COL_1 5
-// #define KEYPAD_COL_2 4
-// #define KEYPAD_COL_3 3
-// #define KEYPAD_COL_4 2
-
 #include <Arduino.h>
 
-#include "SerialIO.h"
 #include "Keypad.h"
+#include "Led.h"
 
 char keyMap[KEYPAD_ROWS][KEYPAD_COLS] = {
     {'1', '2', '3', 'A'},
@@ -26,10 +16,9 @@ char keyMap[KEYPAD_ROWS][KEYPAD_COLS] = {
     {'*', '0', '#', 'D'}
 };
 
-byte rowPins[KEYPAD_ROWS] = {11, 10, 9, 8};
-byte colPins[KEYPAD_COLS] = {5, 4, 3, 2};
+byte rowPins[KEYPAD_ROWS] = {7, 6, 5, 4};
+byte colPins[KEYPAD_COLS] = {3, 2, 1, 0};
 
-SerialIO serialIO;
 Keypad keyPad = Keypad(
     makeKeymap(keyMap),
     rowPins,
@@ -38,21 +27,17 @@ Keypad keyPad = Keypad(
     KEYPAD_COLS
 );
 Led greenLed = Led(GREEN_LED_PIN);
+Led redLed = Led(RED_LED_PIN);
 
 String password = "";
 
 void setup(){
-    serialIO.setup();
     greenLed.setup();
-    greenLed.setPowerState(false);
-    serialIO.serialDisplay("Enter password: ");
+    redLed.setup();
 }
 
 void loop(){
-    serialIO.serialDisplay(String(keyPad.getKey()));
+    char key = keyPad.getKey();
 
-    // if(key != NO_KEY){
-    //     serialIO.serialDisplay("*");
-    //     greenLed.togglePowerState();
-    // }
+    // Handle key presses
 }
