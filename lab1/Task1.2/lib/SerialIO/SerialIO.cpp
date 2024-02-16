@@ -42,7 +42,6 @@ void SerialIO::setup(){
     __iob[2] = _stderr;
 
     delay(100);
-    putchar(command_prompt);
 }
 
 void SerialIO::waitInput(){
