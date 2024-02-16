@@ -6,6 +6,7 @@ Led::Led(int pin){
 
 void Led::setup(){
     pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, !powerState);
 }
 
 void Led::setPowerState(bool state){
