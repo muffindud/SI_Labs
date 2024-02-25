@@ -8,7 +8,7 @@
 
 class LedTaskSelector{
     private:
-        Led &outputLed;
+        Led &selectorLed;
         Button &selectorButton;
         
         bool active = false;
@@ -17,6 +17,7 @@ class LedTaskSelector{
         LedTaskSelector(Led &led, Button &button);
 
         void scanTaskSelector();
+        bool getActive();
 };
 
 #endif

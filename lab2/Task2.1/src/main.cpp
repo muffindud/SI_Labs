@@ -11,6 +11,7 @@
 #include "Button.h"
 #include "SerialIO.h"
 #include "LedTaskSelector.h"
+#include "LedTaskExcuter.h"
 
 Led redLed(RED_LED);
 Led greenLed(GREEN_LED);
@@ -19,7 +20,17 @@ Button blackButton(BLACK_BUTTON);
 Button redButton(RED_BUTTON);
 Button greenButton(GREEN_BUTTON);
 
-LedTaskSelector taskSelector(redLed, blackButton);
+LedTaskSelector taskSelector(
+    redLed, 
+    blackButton
+);
+
+LedTaskExcuter taskExecuter(
+    taskSelector, 
+    greenLed, 
+    redButton, 
+    greenButton
+);
 
 SerialIO serialIO;
 
@@ -40,4 +51,5 @@ void loop(){
     greenButton.scanButtonState();
 
     taskSelector.scanTaskSelector();
+    taskExecuter.scanTaskExcuter();
 }
