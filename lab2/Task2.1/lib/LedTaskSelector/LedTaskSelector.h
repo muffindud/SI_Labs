@@ -10,7 +10,7 @@ class LedTaskSelector{
     private:
         Led &selectorLed;
         Button &selectorButton;
-        
+
         bool active = false;
 
     public:

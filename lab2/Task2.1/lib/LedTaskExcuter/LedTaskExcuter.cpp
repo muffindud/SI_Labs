@@ -15,12 +15,14 @@ LedTaskExcuter::LedTaskExcuter(
 void LedTaskExcuter::increaseFrequency(){
     if(frequencyIncreaseButton.getButtonPressed() && delayTime > MIN_DELAY_TIME){
         delayTime -= DELAY_TIME_STEP;
+        printf("Delay time: %d\n\r", delayTime);
     }
 }
 
 void LedTaskExcuter::decreaseFrequency(){
     if(frequencyDecreaseButton.getButtonPressed() && delayTime < MAX_DELAY_TIME){
         delayTime += DELAY_TIME_STEP;
+        printf("Delay time: %d\n\r", delayTime);
     }
 }
 
