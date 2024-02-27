@@ -1,7 +1,7 @@
 #define NEW_LINE_1 13
 #define NEW_LINE_2 10
 #define BACKSPACE 127
-#define SERIAL_BAUD_RATE 9600
+#define SERIAL_BAUD_RATE 4000000
 
 #include "SerialIO.h"
 
