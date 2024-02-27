@@ -13,6 +13,7 @@ void Button::scanButtonState(){
     buttonState = digitalRead(buttonPin);
     changedState = buttonState != lastButtonState;
     delay(10);
+    return;
 }
 
 bool Button::getButtonPressed(){

@@ -1,71 +1,77 @@
-// #define RED_LED 13
-// #define GREEN_LED 12
+#define RED_LED 13
+#define GREEN_LED 12
 
-// #define BLACK_BUTTON 11
-// #define RED_BUTTON 10
-// #define GREEN_BUTTON 9
+#define BLACK_BUTTON 11
+#define RED_BUTTON 10
+#define GREEN_BUTTON 9
 
 #include <Arduino.h>
 
-// #include "Led.h"
-// #include "Button.h"
+#include "Led.h"
+#include "Button.h"
 #include "SerialIO.h"
-// #include "LedTaskSelector.h"
-// #include "LedTaskExcuter.h"
+#include "LedTaskSelector.h"
+#include "LedTaskExcuter.h"
 #include "Task.h"
 #include "TaskScheduler.h"
 
-// Led redLed(RED_LED);
-// Led greenLed(GREEN_LED);
+Led redLed(RED_LED);
+Led greenLed(GREEN_LED);
 
-// Button blackButton(BLACK_BUTTON);
-// Button redButton(RED_BUTTON);
-// Button greenButton(GREEN_BUTTON);
+Button blackButton(BLACK_BUTTON);
+Button redButton(RED_BUTTON);
+Button greenButton(GREEN_BUTTON);
 
-// LedTaskSelector taskSelector(
-//     redLed, 
-//     blackButton
-// );
+LedTaskSelector taskSelector(
+    redLed, 
+    blackButton
+);
 
-// LedTaskExcuter taskExecuter(
-//     taskSelector, 
-//     greenLed, 
-//     redButton, 
-//     greenButton
-// );
+LedTaskExcuter taskExecuter(
+    taskSelector, 
+    greenLed, 
+    redButton, 
+    greenButton
+);
 
 SerialIO serialIO;
 
-void tempTask(){
-    // delay(100);
-    delayMicroseconds(100);
-    // printf("Temp task executed\n");
+TaskScheduler taskScheduler;
+
+void scanBlackButton(){
+    blackButton.scanButtonState();
+    printf("Black Button State: %d\n", blackButton.getButtonDown());
+    return;
+}
+void scanRedButton(){
+    redButton.scanButtonState();
+    printf("Red Button State: %d\n", redButton.getButtonDown());
+    return;
+}
+void scanGreenButton(){
+    greenButton.scanButtonState();
+    printf("Green Button State: %d\n", greenButton.getButtonDown());
     return;
 }
 
-Task task(VERY_HIGH_PRIORITY, tempTask, true);
-TaskScheduler taskScheduler(&task);
-
 void setup(){
-    // redLed.setup();
-    // greenLed.setup();
+    redLed.setup();
+    greenLed.setup();
 
-    // blackButton.setup();
-    // redButton.setup();
-    // greenButton.setup();
+    blackButton.setup();
+    redButton.setup();
+    greenButton.setup();
 
     serialIO.setup();
+
+    taskScheduler.addTask(scanBlackButton, VERY_HIGH_PRIORITY, true);
+    taskScheduler.addTask(scanRedButton, VERY_HIGH_PRIORITY, true);
+    taskScheduler.addTask(scanGreenButton, VERY_HIGH_PRIORITY, true);
+
     taskScheduler.executeTasks();
 }
 
-void loop(){
-    // blackButton.scanButtonState();
-    // redButton.scanButtonState();
-    // greenButton.scanButtonState();
+void loop(){}
 
-    // taskSelector.scanTaskSelector();
-    // taskExecuter.scanTaskExcuter();
-
-    // taskScheduler.executeTasks();
-    // printf("Loop executed\n\r");
-}
+//TODO: Redo LedTaskExcuter
+//TODO: Redo LedTaskSelector

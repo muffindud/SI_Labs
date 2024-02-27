@@ -18,7 +18,7 @@ class TaskScheduler{
         TaskScheduler();
         TaskScheduler(Task *firstTask);
 
-        void addTask(void (*task)(), PRIORITY priority);
+        void addTask(void (*task)(), PRIORITY priority, bool permanent = false);
         void setFirstTask(Task *task);
         void setCurrentTask(Task *task);
         void executeTasks();

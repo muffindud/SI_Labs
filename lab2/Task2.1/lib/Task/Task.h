@@ -18,9 +18,9 @@ class Task{
         Task *previousTask = nullptr;
         Task *nextTask = nullptr;
 
-        Task(PRIORITY priority, void (*task)(), bool permanent = false);
-        Task(Task *previousTask, PRIORITY priority, void (*task)(), bool permanent = false);
-        Task(Task *previousTask, Task *nextTask, PRIORITY priority, void (*task)(), bool permanent = false);
+        Task(void (*task)(), PRIORITY priority, bool permanent = false);
+        Task(Task *previousTask, void (*task)(), PRIORITY priority, bool permanent);
+        Task(Task *previousTask, Task *nextTask, void (*task)(), PRIORITY priority, bool permanent);
 
         PRIORITY priority = MEDIUM_PRIORITY;
         bool permanent = false;
