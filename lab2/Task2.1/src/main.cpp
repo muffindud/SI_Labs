@@ -39,18 +39,21 @@ SerialIO serialIO;
 TaskScheduler taskScheduler;
 
 void scanBlackButton(){
+    printf("Scanning Black Button\n\r");
     blackButton.scanButtonState();
-    printf("Black Button State: %d\n", blackButton.getButtonDown());
+    printf("Black Button State: %d\n\r", blackButton.getButtonDown());
     return;
 }
 void scanRedButton(){
+    printf("Scanning Red Button\n\r");
     redButton.scanButtonState();
-    printf("Red Button State: %d\n", redButton.getButtonDown());
+    printf("Red Button State: %d\n\r", redButton.getButtonDown());
     return;
 }
 void scanGreenButton(){
+    printf("Scanning Green Button\n\r");
     greenButton.scanButtonState();
-    printf("Green Button State: %d\n", greenButton.getButtonDown());
+    printf("Green Button State: %d\n\r", greenButton.getButtonDown());
     return;
 }
 
@@ -64,14 +67,14 @@ void setup(){
 
     serialIO.setup();
 
-    taskScheduler.addTask(scanBlackButton, VERY_HIGH_PRIORITY, true);
-    taskScheduler.addTask(scanRedButton, VERY_HIGH_PRIORITY, true);
-    taskScheduler.addTask(scanGreenButton, VERY_HIGH_PRIORITY, true);
-
-    taskScheduler.executeTasks();
+    taskScheduler.addTask(&scanBlackButton, VERY_HIGH_PRIORITY, true);
+    taskScheduler.addTask(&scanRedButton, VERY_HIGH_PRIORITY, true);
+    taskScheduler.addTask(&scanGreenButton, VERY_HIGH_PRIORITY, true);
 }
 
-void loop(){}
+void loop(){
+    taskScheduler.executeTasks();
+}
 
 //TODO: Redo LedTaskExcuter
 //TODO: Redo LedTaskSelector

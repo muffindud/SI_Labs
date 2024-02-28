@@ -2,6 +2,7 @@
 #define TASK_SCHEDULER_H
 
 #define MAX_TASKS 10
+#define MICROSECONDS_PER_TASK 100000
 
 #include <stdio.h>
 #include <Arduino.h>
