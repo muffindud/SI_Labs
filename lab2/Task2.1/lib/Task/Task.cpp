@@ -3,7 +3,7 @@
 Task::Task(void (*task)(), PRIORITY priority, bool permanent = false){
     this->previousTask = nullptr;
     this->nextTask = nullptr;
-    this->priority = MEDIUM_PRIORITY;
+    this->priority = priority;
     this->task = task;
     this->permanent = false;
 }

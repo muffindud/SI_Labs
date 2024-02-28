@@ -2,11 +2,11 @@
 #define TASK_H
 
 enum PRIORITY{
-    VERY_HIGH_PRIORITY,
-    HIGH_PRIORITY,
-    MEDIUM_PRIORITY,
-    LOW_PRIORITY,
-    VERY_LOW_PRIORITY
+    VERY_HIGH_PRIORITY = 0,
+    HIGH_PRIORITY = 1,
+    MEDIUM_PRIORITY = 2,
+    LOW_PRIORITY = 3,
+    VERY_LOW_PRIORITY = 4
 };
 
 
@@ -22,7 +22,7 @@ class Task{
         Task(Task *previousTask, void (*task)(), PRIORITY priority, bool permanent);
         Task(Task *previousTask, Task *nextTask, void (*task)(), PRIORITY priority, bool permanent);
 
-        PRIORITY priority = MEDIUM_PRIORITY;
+        PRIORITY priority;
         bool permanent = false;
 
         void execute();
