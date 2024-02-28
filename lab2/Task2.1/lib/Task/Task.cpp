@@ -1,11 +1,11 @@
 #include "Task.h"
 
-Task::Task(void (*task)(), PRIORITY priority, bool permanent = false){
+Task::Task(void (*task)(), PRIORITY priority, bool permanent){
     this->previousTask = nullptr;
     this->nextTask = nullptr;
     this->priority = priority;
     this->task = task;
-    this->permanent = false;
+    this->permanent = permanent;
 }
 
 Task::Task(Task *previousTask, void (*task)(), PRIORITY priority, bool permanent){

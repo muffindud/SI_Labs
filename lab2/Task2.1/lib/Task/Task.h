@@ -23,7 +23,7 @@ class Task{
         Task(Task *previousTask, Task *nextTask, void (*task)(), PRIORITY priority, bool permanent);
 
         PRIORITY priority;
-        bool permanent = false;
+        bool permanent;
 
         void execute();
 };
