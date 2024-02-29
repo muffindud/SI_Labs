@@ -8,11 +8,15 @@
 #define KEYPAD_ROWS 4
 #define KEYPAD_COLS 4
 
+#define MAX_TRIES 3
+
 #include <Arduino.h>
 
 #include "Keypad.h"
 #include "Led.h"
 #include "LCD.h"
+
+int tries = 0;
 
 char keyMap[KEYPAD_ROWS][KEYPAD_COLS] = {
     {'1', '2', '3', 'A'},
@@ -120,12 +124,22 @@ void setup(){
 void loop(){
     char key = keyPad.getKey();
     
+    if(tries >= MAX_TRIES){
+        lcd.clear();
+        lcd.print("Max tries");
+        lcd.setCursor(0, 1);
+        lcd.print("reached");
+        for(;;);
+        tries = 0;
+    }
+
     if(key){
         if(key == '#'){
             lcd.clear();
 
             if(input == password){
                 greenLed.setPowerState(true);
+                tries = 0;
                 lcd.print("Access granted");
                 delay(2000);
                 askNewPassword();
@@ -133,6 +147,7 @@ void loop(){
             else{
                 redLed.setPowerState(true);
                 lcd.print("Access denied");
+                tries++;
                 delay(2000);
             }
             
