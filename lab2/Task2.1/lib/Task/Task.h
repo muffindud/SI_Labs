@@ -1,6 +1,8 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include <Arduino.h>
+
 enum PRIORITY{
     VERY_HIGH_PRIORITY = 0,
     HIGH_PRIORITY = 1,
@@ -18,7 +20,7 @@ class Task{
         Task *previousTask = nullptr;
         Task *nextTask = nullptr;
 
-        Task(void (*task)(), PRIORITY priority, bool permanent = false);
+        Task(void (*task)(), PRIORITY priority, bool permanent);
         Task(Task *previousTask, void (*task)(), PRIORITY priority, bool permanent);
         Task(Task *previousTask, Task *nextTask, void (*task)(), PRIORITY priority, bool permanent);
 

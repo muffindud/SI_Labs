@@ -2,7 +2,7 @@
 #define TASK_SCHEDULER_H
 
 #define MAX_TASKS 10
-#define MICROSECONDS_PER_TASK 100000
+#define MICROSECONDS_PER_TASK 500000
 
 #include <stdio.h>
 #include <Arduino.h>
@@ -14,6 +14,7 @@ class TaskScheduler{
         Task *firstTask = nullptr;
         Task *currentTask = nullptr;
         int taskCount = 0;
+        int loopCounter = 0;
 
     public:
         TaskScheduler();
@@ -23,6 +24,9 @@ class TaskScheduler{
         void setFirstTask(Task *task);
         void setCurrentTask(Task *task);
         void executeTasks();
+        void executeTask();
+
+        void printTaskList();
 };
 
 #endif
