@@ -15,14 +15,14 @@
 #include "Task.h"
 #include "TaskScheduler.h"
 
-// Led redLed(RED_LED);
-// Led greenLed(GREEN_LED);
+Led redLed(RED_LED);
+Led greenLed(GREEN_LED);
 
 Button blackButton(BLACK_BUTTON);
 Button redButton(RED_BUTTON);
 Button greenButton(GREEN_BUTTON);
 
-LedTaskSelector taskSelector;
+LedTaskSelector taskSelector(&redLed);
 
 // LedTaskExcuter taskExecuter;
 
@@ -60,12 +60,6 @@ void scanBlackButton(){
 
 void scanRedButton(){
     redButton.scanButtonState();
-
-    if(redButton.getButtonPressed()){
-        taskScheduler.printTaskList();
-        printf("====================================\n\r");
-    }
-
     return;
 }
 
@@ -75,8 +69,8 @@ void scanGreenButton(){
 }
 
 void setup(){
-    // redLed.setup();
-    // greenLed.setup();
+    redLed.setup();
+    greenLed.setup();
 
     blackButton.setup();
     redButton.setup();
@@ -86,13 +80,13 @@ void setup(){
 
     taskScheduler.addTaskToQueue(&taskReset, VERY_HIGH_PRIORITY, true);
     taskScheduler.taskReset();
-    printf("Initial Task Reset\n\r");
 
     taskScheduler.addTaskToQueue(&scanBlackButton, HIGH_PRIORITY, true);
     taskScheduler.addTaskToQueue(&scanRedButton, HIGH_PRIORITY, true);
     taskScheduler.addTaskToQueue(&scanGreenButton, HIGH_PRIORITY, true);
 
-    // taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, true);
+    taskSelector.toggleActive();
+    taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
 }
 
 void loop(){
@@ -100,4 +94,3 @@ void loop(){
 }
 
 //TODO: Redo LedTaskExcuter
-//TODO: Redo LedTaskSelector

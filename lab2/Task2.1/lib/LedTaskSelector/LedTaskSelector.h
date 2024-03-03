@@ -3,12 +3,15 @@
 
 #include <Arduino.h>
 
+#include "Led.h"
+
 class LedTaskSelector{
     private:
-        bool active = false;
+        Led *selectorLed;
 
+        bool active = false;
     public:
-        LedTaskSelector();
+        LedTaskSelector(Led *selectorLed);
 
         void toggleActive();
         void setActive(bool active);

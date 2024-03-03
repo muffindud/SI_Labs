@@ -1,14 +1,20 @@
 #include "LedTaskSelector.h"
 
-LedTaskSelector::LedTaskSelector(){}
+LedTaskSelector::LedTaskSelector(Led *selectorLed):
+    selectorLed(selectorLed)
+{}
 
 void LedTaskSelector::toggleActive(){
     active = !active;
+    selectorLed->setPowerState(active);
+
     return;
 }
 
 void LedTaskSelector::setActive(bool active){
     this->active = active;
+    selectorLed->setPowerState(active);
+
     return;
 }
 
