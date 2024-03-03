@@ -1,9 +1,6 @@
 #ifndef TASK_SCHEDULER_H
 #define TASK_SCHEDULER_H
 
-#define MAX_TASKS 10
-#define MICROSECONDS_PER_TASK 500000
-
 #include <stdio.h>
 
 #include "Task.h"
@@ -33,8 +30,6 @@ class TaskScheduler{
 
         void addTaskToQueue(void (*task)(), PRIORITY priority, bool permanent);
         void taskReset();
-        void setFirstTask(Task *task);
-        void setCurrentTask(Task *task);
         void executeTasks();
         void executeTask();
 

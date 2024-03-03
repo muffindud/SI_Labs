@@ -34,14 +34,13 @@ void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
                     tempTask = tempTask->nextTask;
                 }
             }else{
-                if(tempTask->previousTask == nullptr){
+                if(tempTask == firstTask){
                     firstTask = new Task(task, priority, permanent);
                     firstTask->nextTask = tempTask;
                     tempTask->previousTask = firstTask;
                     break;
                 }else{
-                    tempTask->previousTask->nextTask = new Task(tempTask->previousTask, task, priority, permanent);
-                    tempTask->previousTask->nextTask->nextTask = tempTask;
+                    tempTask->previousTask->nextTask = new Task(tempTask->previousTask, tempTask, task, priority, permanent);
                     tempTask->previousTask = tempTask->previousTask->nextTask;
                     break;
                 }
@@ -70,14 +69,6 @@ void TaskScheduler::taskReset(){
     return;
 }
 
-void TaskScheduler::setFirstTask(Task *task){
-    firstTask = task;
-}
-
-void TaskScheduler::setCurrentTask(Task *task){
-    currentTask = task;
-}
-
 void TaskScheduler::executeTasks(){
     Task *prevTask = firstTask;
     currentTask = firstTask;
@@ -95,6 +86,7 @@ void TaskScheduler::executeTasks(){
                 firstTask = currentTask;
             }
             prevTask->previousTask->nextTask = currentTask;
+            currentTask->previousTask = prevTask->previousTask;
             delete prevTask;
         }
 
@@ -124,6 +116,7 @@ void TaskScheduler::executeTask(){
         }
 
         prevTask->previousTask->nextTask = currentTask;
+        currentTask->previousTask = prevTask->previousTask;
         delete prevTask;
     }
 
@@ -146,6 +139,8 @@ void TaskScheduler::printTaskList(){
             tempTask = tempTask->nextTask;
         }
     }
+
+    printf("================================\n\r");
 
     return;
 }

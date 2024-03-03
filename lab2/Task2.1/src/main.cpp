@@ -24,7 +24,7 @@ Button greenButton(GREEN_BUTTON);
 
 LedTaskSelector taskSelector(&redLed);
 
-// LedTaskExcuter taskExecuter;
+LedTaskExcuter taskExecuter;
 
 SerialIO serialIO;
 
@@ -35,10 +35,31 @@ void taskReset(){
     return;
 }
 
+void increaseGreenLedFrequency(){
+    taskExecuter.increaseFrequency();
+    printf("Delay: %d\n\r", taskExecuter.getDelay());
+    return;
+}
+
+void decreaseGreenLedFrequency(){
+    taskExecuter.decreaseFrequency();
+    printf("Delay: %d\n\r", taskExecuter.getDelay());
+    return;
+}
+
+void scanTaskExecuter(){
+    if(!taskSelector.getActive()){
+        greenLed.togglePowerState();
+        taskScheduler.addTaskToQueue(&scanTaskExecuter, MEDIUM_PRIORITY, false);
+        delay(taskExecuter.getDelay());
+    }
+
+    return;
+}
+
 void scanTaskSelector(){
     if(taskSelector.getActive()){
         taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
-        printf("Task Selector Active\n\r");
     }
 
     return;
@@ -52,6 +73,8 @@ void scanBlackButton(){
 
         if(taskSelector.getActive()){
             taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
+        }else{
+            taskScheduler.addTaskToQueue(&scanTaskExecuter, MEDIUM_PRIORITY, false);
         }
     }
 
@@ -60,11 +83,20 @@ void scanBlackButton(){
 
 void scanRedButton(){
     redButton.scanButtonState();
+
+    if(redButton.getButtonPressed()){
+        taskScheduler.addTaskToQueue(&decreaseGreenLedFrequency, HIGH_PRIORITY, false);
+    }
     return;
 }
 
 void scanGreenButton(){
     greenButton.scanButtonState();
+
+    if(greenButton.getButtonPressed()){
+        taskScheduler.addTaskToQueue(&increaseGreenLedFrequency, HIGH_PRIORITY, false);
+    }
+
     return;
 }
 
@@ -77,6 +109,8 @@ void setup(){
     greenButton.setup();
 
     serialIO.setup();
+
+    printf("-->Program restarted<--\n\r");
 
     taskScheduler.addTaskToQueue(&taskReset, VERY_HIGH_PRIORITY, true);
     taskScheduler.taskReset();
@@ -92,5 +126,3 @@ void setup(){
 void loop(){
     taskScheduler.executeTask();
 }
-
-//TODO: Redo LedTaskExcuter
