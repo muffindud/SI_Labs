@@ -1,25 +1,15 @@
 #include "LedTaskSelector.h"
 
-LedTaskSelector::LedTaskSelector(
-    Led &led, 
-    Button &button
-): 
-    selectorLed(led), 
-    selectorButton(button)
-{}
+LedTaskSelector::LedTaskSelector(){}
 
-void LedTaskSelector::scanTaskSelector(){
-    if(selectorButton.getButtonPressed()){
-        selectorLed.togglePowerState();
-        active = selectorLed.getPowerState();
+void LedTaskSelector::toggleActive(){
+    active = !active;
+    return;
+}
 
-        if(selectorLed.getPowerState()){
-            printf("Selector LED: ON\n\r");
-        }
-        else{
-            printf("Selector LED: OFF\n\r");
-        }
-    }
+void LedTaskSelector::setActive(bool active){
+    this->active = active;
+    return;
 }
 
 bool LedTaskSelector::getActive(){

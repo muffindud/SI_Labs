@@ -8,6 +8,16 @@ TaskScheduler::TaskScheduler(Task *firstTask){
     this->taskCount = 1;
 }
 
+void TaskScheduler::addTaskToQueue(void (*task)(), PRIORITY priority, bool permanent){
+    if(taskQueue == nullptr){
+        taskQueue = new TaskQueue{task, priority, permanent, nullptr};
+        lastTask = taskQueue;
+    }else{
+        lastTask->nextTask = new TaskQueue{task, priority, permanent, nullptr};
+        lastTask = lastTask->nextTask;
+    }
+}
+
 void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
     if(firstTask == nullptr){
         firstTask = new Task(task, priority, permanent);
@@ -41,6 +51,23 @@ void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
                     break;
                 }
             }
+        }
+    }
+
+    return;
+}
+
+void TaskScheduler::addTasks(){
+    TaskQueue *tempTask = taskQueue;
+
+    while(true){
+        if(tempTask == nullptr){
+            break;
+        }else{
+            addTask(tempTask->task, tempTask->priority, tempTask->permanent);
+            tempTask = tempTask->nextTask;
+            delete taskQueue;
+            taskQueue = tempTask;
         }
     }
 

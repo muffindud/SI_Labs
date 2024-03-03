@@ -5,9 +5,15 @@
 #define MICROSECONDS_PER_TASK 500000
 
 #include <stdio.h>
-#include <Arduino.h>
 
 #include "Task.h"
+
+struct TaskQueue{
+    void (*task)();
+    PRIORITY priority;
+    bool permanent;
+    TaskQueue *nextTask;
+};
 
 class TaskScheduler{
     private:
@@ -16,11 +22,17 @@ class TaskScheduler{
         int taskCount = 0;
         int loopCounter = 0;
 
+        TaskQueue *taskQueue = nullptr;
+        TaskQueue *lastTask = nullptr;
+        
+        void addTask(void (*task)(), PRIORITY priority, bool permanent = false);
+
     public:
         TaskScheduler();
         TaskScheduler(Task *firstTask);
 
-        void addTask(void (*task)(), PRIORITY priority, bool permanent = false);
+        void addTaskToQueue(void (*task)(), PRIORITY priority, bool permanent);
+        void addTasks();
         void setFirstTask(Task *task);
         void setCurrentTask(Task *task);
         void executeTasks();

@@ -3,20 +3,15 @@
 
 #include <Arduino.h>
 
-#include "Led.h"
-#include "Button.h"
-
 class LedTaskSelector{
     private:
-        Led &selectorLed;
-        Button &selectorButton;
-
         bool active = false;
 
     public:
-        LedTaskSelector(Led &led, Button &button);
+        LedTaskSelector();
 
-        void scanTaskSelector();
+        void toggleActive();
+        void setActive(bool active);
         bool getActive();
 };
 
