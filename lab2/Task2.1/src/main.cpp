@@ -15,8 +15,8 @@
 #include "Task.h"
 #include "TaskScheduler.h"
 
-Led redLed(RED_LED);
-Led greenLed(GREEN_LED);
+// Led redLed(RED_LED);
+// Led greenLed(GREEN_LED);
 
 Button blackButton(BLACK_BUTTON);
 Button redButton(RED_BUTTON);
@@ -24,20 +24,21 @@ Button greenButton(GREEN_BUTTON);
 
 LedTaskSelector taskSelector;
 
-LedTaskExcuter taskExecuter;
+// LedTaskExcuter taskExecuter;
 
 SerialIO serialIO;
 
 TaskScheduler taskScheduler;
 
-void scanTaskSelector(){
-    if(blackButton.getButtonPressed()){
-        return;
-    }
+void taskReset(){
+    taskScheduler.taskReset();
+    return;
+}
 
+void scanTaskSelector(){
     if(taskSelector.getActive()){
-        taskScheduler.addTaskToQueue(&scanTaskSelector, HIGH_PRIORITY, false);
-        printf("Task Selector Active: %d\n\r", taskSelector.getActive());
+        taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
+        printf("Task Selector Active\n\r");
     }
 
     return;
@@ -50,7 +51,7 @@ void scanBlackButton(){
         taskSelector.toggleActive();
 
         if(taskSelector.getActive()){
-            taskScheduler.addTaskToQueue(&scanTaskSelector, HIGH_PRIORITY, false);
+            taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
         }
     }
 
@@ -59,6 +60,12 @@ void scanBlackButton(){
 
 void scanRedButton(){
     redButton.scanButtonState();
+
+    if(redButton.getButtonPressed()){
+        taskScheduler.printTaskList();
+        printf("====================================\n\r");
+    }
+
     return;
 }
 
@@ -67,14 +74,9 @@ void scanGreenButton(){
     return;
 }
 
-void addTasks(){
-    taskScheduler.addTasks();
-    return;
-}
-
 void setup(){
-    redLed.setup();
-    greenLed.setup();
+    // redLed.setup();
+    // greenLed.setup();
 
     blackButton.setup();
     redButton.setup();
@@ -82,13 +84,15 @@ void setup(){
 
     serialIO.setup();
 
-    taskScheduler.addTaskToQueue(&scanBlackButton, VERY_HIGH_PRIORITY, true);
-    taskScheduler.addTaskToQueue(&scanRedButton, VERY_HIGH_PRIORITY, true);
-    taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, true);
-    taskScheduler.addTaskToQueue(&scanGreenButton, VERY_HIGH_PRIORITY, true);
-    taskScheduler.addTaskToQueue(&addTasks, VERY_LOW_PRIORITY, true);
+    taskScheduler.addTaskToQueue(&taskReset, VERY_HIGH_PRIORITY, true);
+    taskScheduler.taskReset();
+    printf("Initial Task Reset\n\r");
 
-    taskScheduler.addTasks();
+    taskScheduler.addTaskToQueue(&scanBlackButton, HIGH_PRIORITY, true);
+    taskScheduler.addTaskToQueue(&scanRedButton, HIGH_PRIORITY, true);
+    taskScheduler.addTaskToQueue(&scanGreenButton, HIGH_PRIORITY, true);
+
+    // taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, true);
 }
 
 void loop(){

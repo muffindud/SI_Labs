@@ -24,7 +24,7 @@ class TaskScheduler{
 
         TaskQueue *taskQueue = nullptr;
         TaskQueue *lastTask = nullptr;
-        
+
         void addTask(void (*task)(), PRIORITY priority, bool permanent = false);
 
     public:
@@ -32,7 +32,7 @@ class TaskScheduler{
         TaskScheduler(Task *firstTask);
 
         void addTaskToQueue(void (*task)(), PRIORITY priority, bool permanent);
-        void addTasks();
+        void taskReset();
         void setFirstTask(Task *task);
         void setCurrentTask(Task *task);
         void executeTasks();

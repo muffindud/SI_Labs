@@ -5,7 +5,6 @@ TaskScheduler::TaskScheduler(){}
 TaskScheduler::TaskScheduler(Task *firstTask){
     this->firstTask = firstTask;
     this->currentTask = firstTask;
-    this->taskCount = 1;
 }
 
 void TaskScheduler::addTaskToQueue(void (*task)(), PRIORITY priority, bool permanent){
@@ -22,7 +21,6 @@ void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
     if(firstTask == nullptr){
         firstTask = new Task(task, priority, permanent);
         currentTask = firstTask;
-        taskCount++;
         return;
     }else{
         Task *tempTask = firstTask;
@@ -31,7 +29,6 @@ void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
             if(tempTask->priority <= priority){
                 if(tempTask->nextTask == nullptr){
                     tempTask->nextTask = new Task(tempTask, task, priority, permanent);
-                    taskCount++;
                     break;
                 }else{
                     tempTask = tempTask->nextTask;
@@ -41,13 +38,11 @@ void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
                     firstTask = new Task(task, priority, permanent);
                     firstTask->nextTask = tempTask;
                     tempTask->previousTask = firstTask;
-                    taskCount++;
                     break;
                 }else{
                     tempTask->previousTask->nextTask = new Task(tempTask->previousTask, task, priority, permanent);
                     tempTask->previousTask->nextTask->nextTask = tempTask;
                     tempTask->previousTask = tempTask->previousTask->nextTask;
-                    taskCount++;
                     break;
                 }
             }
@@ -57,11 +52,12 @@ void TaskScheduler::addTask(void (*task)(), PRIORITY priority, bool permanent){
     return;
 }
 
-void TaskScheduler::addTasks(){
+void TaskScheduler::taskReset(){
     TaskQueue *tempTask = taskQueue;
 
     while(true){
         if(tempTask == nullptr){
+            lastTask = nullptr;
             break;
         }else{
             addTask(tempTask->task, tempTask->priority, tempTask->permanent);
@@ -99,7 +95,6 @@ void TaskScheduler::executeTasks(){
                 firstTask = currentTask;
             }
             prevTask->previousTask->nextTask = currentTask;
-            taskCount--;
             delete prevTask;
         }
 
@@ -129,15 +124,12 @@ void TaskScheduler::executeTask(){
         }
 
         prevTask->previousTask->nextTask = currentTask;
-        taskCount--;
         delete prevTask;
     }
 
     if(currentTask == nullptr){
         currentTask = firstTask;
     }
-
-    loopCounter = (loopCounter + 1) % taskCount;
 
     return;
 }
