@@ -22,6 +22,20 @@ void LedTaskExcuter::decreaseFrequency(){
     return;
 }
 
-int LedTaskExcuter::getDelay(){
+void LedTaskExcuter::startTimer(){
+    startTime = millis();
+    return;
+}
+
+void LedTaskExcuter::snapTime(){
+    passedTime = millis() - startTime;
+    return;
+}
+
+unsigned long LedTaskExcuter::getPassedTime(){
+    return passedTime;
+}
+
+unsigned long LedTaskExcuter::getDelay(){
     return ledDelay;
 }

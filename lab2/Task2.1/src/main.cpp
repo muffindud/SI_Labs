@@ -37,21 +37,25 @@ void taskReset(){
 
 void increaseGreenLedFrequency(){
     taskExecuter.increaseFrequency();
-    printf("Delay: %d\n\r", taskExecuter.getDelay());
+    printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
     return;
 }
 
 void decreaseGreenLedFrequency(){
     taskExecuter.decreaseFrequency();
-    printf("Delay: %d\n\r", taskExecuter.getDelay());
+    printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
     return;
 }
 
 void scanTaskExecuter(){
     if(!taskSelector.getActive()){
-        greenLed.togglePowerState();
         taskScheduler.addTaskToQueue(&scanTaskExecuter, MEDIUM_PRIORITY, false);
-        delay(taskExecuter.getDelay());
+
+        taskExecuter.snapTime();
+        if(taskExecuter.getPassedTime() > taskExecuter.getDelay()){
+            greenLed.togglePowerState();
+            taskExecuter.startTimer();
+        }
     }
 
     return;
@@ -73,8 +77,11 @@ void scanBlackButton(){
 
         if(taskSelector.getActive()){
             taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
+            printf("TaskSelector active\n\r");
         }else{
             taskScheduler.addTaskToQueue(&scanTaskExecuter, MEDIUM_PRIORITY, false);
+            taskExecuter.startTimer();
+            printf("TaskSelector inactive\n\r");
         }
     }
 
@@ -109,8 +116,6 @@ void setup(){
     greenButton.setup();
 
     serialIO.setup();
-
-    printf("-->Program restarted<--\n\r");
 
     taskScheduler.addTaskToQueue(&taskReset, VERY_HIGH_PRIORITY, true);
     taskScheduler.taskReset();
