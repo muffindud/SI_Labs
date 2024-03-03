@@ -107,6 +107,56 @@ void scanGreenButton(){
     return;
 }
 
+void secretTask(){
+    bool lastGreenLedState = greenLed.getPowerState();
+    bool lastRedLedState = redLed.getPowerState();
+
+    greenLed.setPowerState(false);
+    redLed.setPowerState(true);
+
+    for(int i = 0; i < 10; i++){
+        greenLed.togglePowerState();
+        redLed.togglePowerState();
+        delay(500);
+    }
+
+    greenLed.setPowerState(lastGreenLedState);
+    redLed.setPowerState(lastRedLedState);
+
+    return;
+}
+
+int sequenceIndex = 0;
+char secretSequence[] = {'B', 'B', 'G', 'R', 'R', 'G'};
+void scanSequence(){
+    if(secretSequence[sequenceIndex] == 'B' && sequenceIndex < 6){
+        if(blackButton.getButtonPressed()){
+            sequenceIndex++;
+        }else if(greenButton.getButtonPressed() || redButton.getButtonPressed()){
+            sequenceIndex = 0;
+        }
+    }else if(secretSequence[sequenceIndex] == 'R' && sequenceIndex < 6){
+        if(redButton.getButtonPressed()){
+            sequenceIndex++;
+        }else if(greenButton.getButtonPressed() || blackButton.getButtonPressed()){
+            sequenceIndex = 0;
+        }
+    }else if(secretSequence[sequenceIndex] == 'G' && sequenceIndex < 6){
+        if(greenButton.getButtonPressed()){
+            sequenceIndex++;
+        }else if(redButton.getButtonPressed() || blackButton.getButtonPressed()){
+            sequenceIndex = 0;
+        }
+    }
+
+    if(sequenceIndex == 6){
+        sequenceIndex = 0;
+        taskScheduler.addTaskToQueue(&secretTask, HIGH_PRIORITY, false);
+    }
+
+    return;
+}
+
 void setup(){
     redLed.setup();
     greenLed.setup();
@@ -123,6 +173,8 @@ void setup(){
     taskScheduler.addTaskToQueue(&scanBlackButton, HIGH_PRIORITY, true);
     taskScheduler.addTaskToQueue(&scanRedButton, HIGH_PRIORITY, true);
     taskScheduler.addTaskToQueue(&scanGreenButton, HIGH_PRIORITY, true);
+
+    taskScheduler.addTaskToQueue(&scanSequence, MEDIUM_PRIORITY, true);
 
     taskSelector.toggleActive();
     taskScheduler.addTaskToQueue(&scanTaskSelector, MEDIUM_PRIORITY, false);
