@@ -1,11 +1,13 @@
 #define TASK_DELAY_MS 100
+#define SECRET_TASK_BLINK_PERIOD_MS 500
 
 #define TASK_DELAY_TICKS 0
 
 #define BLACK_BUTTON_DELAY_OFFSET_TICKS 0
-#define RED_BUTTON_DELAY_OFFSET_TICKS 1
-#define GREEN_BUTTON_DELAY_OFFSET_TICK 2
-#define TASK_EXECUTER_DELAY_OFFSET_TICKS 3
+#define RED_BUTTON_DELAY_OFFSET_TICKS 10
+#define GREEN_BUTTON_DELAY_OFFSET_TICK 20
+#define SECRET_SEQUENCE_OFFSET_TICKS 30
+#define TASK_EXECUTER_DELAY_OFFSET_TICKS 40
 
 #define RED_LED 13
 #define GREEN_LED 12
@@ -39,19 +41,18 @@ SerialIO serialIO;
 TaskHandle_t blackButtonHandler = NULL;
 TaskHandle_t redButtonHandler = NULL;
 TaskHandle_t greenButtonHandler = NULL;
+
 TaskHandle_t taskExecuterHandler = NULL;
-TaskHandle_t greenLedFrequencyHandler = NULL;
 
 void scanTaskExecuter(void *pvParameters);
 void scanBlackButton(void *pvParameters);
 void scanRedButton(void *pvParameters);
 void scanGreenButton(void *pvParameters);
-void secretTask();
 void scanSequence();
+void secretTask();
 void setup();
 void loop();
 
-// Dependent task
 void scanTaskExecuter(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
@@ -66,7 +67,6 @@ void scanTaskExecuter(void *pvParameters){
     }
 }
 
-// Permanent task
 void scanBlackButton(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
@@ -85,8 +85,6 @@ void scanBlackButton(void *pvParameters){
                     vTaskDelete(taskExecuterHandler);
                     taskExecuterHandler = NULL;
                 }
-
-                // printf("Task Selector: active\n\r");
             }else{
                 xTaskCreate(
                     scanTaskExecuter,
@@ -96,16 +94,15 @@ void scanBlackButton(void *pvParameters){
                     3,
                     &taskExecuterHandler
                 );
-
-                // printf("Task Selector: inactive\n\r");
             }
+
+            scanSequence();
         }
 
         vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
-// Permanent task
 void scanRedButton(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
@@ -119,13 +116,14 @@ void scanRedButton(void *pvParameters){
         if(redButton.getButtonPressed()){
             taskExecuter.decreaseFrequency();
             printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
+        
+            scanSequence();
         }
 
         vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
-// Permanent task
 void scanGreenButton(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
@@ -139,30 +137,12 @@ void scanGreenButton(void *pvParameters){
         if(greenButton.getButtonPressed()){
             taskExecuter.increaseFrequency();
             printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
+
+            scanSequence();
         }
 
         vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
-}
-
-// Permanent task (TODO)
-void secretTask(){
-    bool lastGreenLedState = greenLed.getPowerState();
-    bool lastRedLedState = redLed.getPowerState();
-
-    greenLed.setPowerState(false);
-    redLed.setPowerState(true);
-
-    for(int i = 0; i < 10; i++){
-        greenLed.togglePowerState();
-        redLed.togglePowerState();
-        delay(500);
-    }
-
-    greenLed.setPowerState(lastGreenLedState);
-    redLed.setPowerState(lastRedLedState);
-
-    return;
 }
 
 int sequenceIndex = 0;
@@ -190,10 +170,32 @@ void scanSequence(){
 
     if(sequenceIndex == 6){
         sequenceIndex = 0;
-        // TODO: Adapt to FreeRTOS
+        secretTask();
     }
+}
 
-    return;
+void secretTask(){
+    // Save the last state of the LEDs
+    bool lastGreenLedState = greenLed.getPowerState();
+    bool lastRedLedState = redLed.getPowerState();
+
+    printf("Secret task started\n\r");
+    // ================ Secret task starts here =======================
+    greenLed.setPowerState(false);
+    redLed.setPowerState(true);
+
+    // Alternate the LEDs 10 times with a delay of 500ms
+    for(int i = 0; i < 10; i++){
+        greenLed.togglePowerState();
+        redLed.togglePowerState();
+        vTaskDelay(SECRET_TASK_BLINK_PERIOD_MS / portTICK_PERIOD_MS);
+    }
+    // ================ Secret task ends here =========================
+    printf("Secret task ended\n\r");
+
+    // Restore the last state of the LEDs
+    greenLed.setPowerState(lastGreenLedState);
+    redLed.setPowerState(lastRedLedState);
 }
 
 void setup(){
