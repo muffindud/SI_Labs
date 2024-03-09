@@ -38,14 +38,10 @@ SerialIO serialIO;
 TaskHandle_t blackButtonHandler = NULL;
 TaskHandle_t redButtonHandler = NULL;
 TaskHandle_t greenButtonHandler = NULL;
-TaskHandle_t taskSelectorHandler = NULL;
 TaskHandle_t taskExecuterHandler = NULL;
 TaskHandle_t greenLedFrequencyHandler = NULL;
 
-void increaseGreenLedFrequency(void *pvParameters);
-void decreaseGreenLedFrequency(void *pvParameters);
 void scanTaskExecuter(void *pvParameters);
-void scanTaskSelector(void *pvParameters);
 void scanBlackButton(void *pvParameters);
 void scanRedButton(void *pvParameters);
 void scanGreenButton(void *pvParameters);
@@ -59,24 +55,8 @@ void scanTaskExecuter(void *pvParameters){
     (void) pvParameters;
 
     for(;;){
-        // vTaskDelay(TASK_DELAY + TASK_SELECTOR_EXECUTER_DELAY_OFFSET);
-
-        if(!taskSelector.getActive()){
-            taskExecuter.snapTime();
-            if(taskExecuter.getPassedTime() > taskExecuter.getDelay()){
-                greenLed.togglePowerState();
-                taskExecuter.startTimer();
-            }
-        }
-    }
-}
-
-// Dependent task
-void scanTaskSelector(void *pvParameters){
-    (void) pvParameters;
-
-    for(;;){
-        // vTaskDelay(TASK_DELAY + TASK_SELECTOR_EXECUTER_DELAY_OFFSET);
+        vTaskDelay(taskExecuter.getDelay() / portTICK_PERIOD_MS);
+        greenLed.togglePowerState();
     }
 }
 
@@ -90,40 +70,26 @@ void scanBlackButton(void *pvParameters){
         blackButton.scanButtonState();
 
         if(blackButton.getButtonPressed()){
-            if(taskSelectorHandler != NULL){
-                vTaskDelete(taskSelectorHandler);
-                taskSelectorHandler = NULL;
-            }
-
-            if(taskExecuterHandler != NULL){
-                vTaskDelete(taskExecuterHandler);
-                taskExecuterHandler = NULL;
-            }
-
             taskSelector.toggleActive();
 
             if(taskSelector.getActive()){
-                xTaskCreate(
-                    scanTaskSelector,
-                    "Scan Task Selector",
-                    128,
-                    NULL,
-                    2,
-                    &taskSelectorHandler
-                );
+                if(taskExecuterHandler != NULL){
+                    vTaskDelete(taskExecuterHandler);
+                    taskExecuterHandler = NULL;
+                }
 
-                printf("Task Selector: active\n\r");
+                // printf("Task Selector: active\n\r");
             }else{
                 xTaskCreate(
                     scanTaskExecuter,
                     "Scan Task Executer",
                     128,
                     NULL,
-                    2,
+                    3,
                     &taskExecuterHandler
                 );
 
-                printf("Task Selector: inactive\n\r");
+                // printf("Task Selector: inactive\n\r");
             }
         }
     }
@@ -222,6 +188,8 @@ void setup(){
 
     serialIO.setup();
 
+    taskSelector.toggleActive();
+
     xTaskCreate(
         scanBlackButton,
         "Read Black Button State",
@@ -249,10 +217,7 @@ void setup(){
         &greenButtonHandler
     );
 
-    taskSelector.toggleActive();
-
     vTaskStartScheduler();
-    printf("Program started\n\r");
 }
 
 void loop(){}
