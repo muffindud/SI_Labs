@@ -1,5 +1,11 @@
 #define TASK_DELAY 10
 
+#define BLACK_BUTTON_DELAY_OFFSET 2
+#define RED_BUTTON_DELAY_OFFSET 3
+#define GREEN_BUTTON_DELAY_OFFSET 5
+#define TASK_SELECTOR_EXECUTER_DELAY_OFFSET 7
+#define TASK_FREQUENCY_DELAY_OFFSET 11
+
 #define RED_LED 13
 #define GREEN_LED 12
 
@@ -29,6 +35,9 @@ LedTaskExcuter taskExecuter;
 
 SerialIO serialIO;
 
+TaskHandle_t blackButtonHandler = NULL;
+TaskHandle_t redButtonHandler = NULL;
+TaskHandle_t greenButtonHandler = NULL;
 TaskHandle_t taskSelectorHandler = NULL;
 TaskHandle_t taskExecuterHandler = NULL;
 TaskHandle_t greenLedFrequencyHandler = NULL;
@@ -45,64 +54,20 @@ void scanSequence();
 void setup();
 void loop();
 
-// Temporary task
-void increaseGreenLedFrequency(void *pvParameters){
-    (void) pvParameters;
-
-    for(;;){
-        taskExecuter.increaseFrequency();
-        printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
-
-        if(greenLedFrequencyHandler != NULL){
-            vTaskDelete(greenLedFrequencyHandler);
-            greenLedFrequencyHandler = NULL;
-        }
-    }
-}
-
-// Temporary task
-void decreaseGreenLedFrequency(void *pvParameters){
-    (void) pvParameters;
-
-    for(;;){
-        taskExecuter.decreaseFrequency();
-        printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
-
-        if(greenLedFrequencyHandler != NULL){
-            vTaskDelete(greenLedFrequencyHandler);
-            greenLedFrequencyHandler = NULL;
-        }
-    }
-}
-
 // Dependent task
 void scanTaskExecuter(void *pvParameters){
     (void) pvParameters;
 
     for(;;){
-        if(taskSelector.getActive()){
+        // vTaskDelay(TASK_DELAY + TASK_SELECTOR_EXECUTER_DELAY_OFFSET);
+
+        if(!taskSelector.getActive()){
             taskExecuter.snapTime();
             if(taskExecuter.getPassedTime() > taskExecuter.getDelay()){
                 greenLed.togglePowerState();
                 taskExecuter.startTimer();
             }
-            
-            if(taskExecuterHandler != NULL){
-                vTaskDelete(taskExecuterHandler);
-                taskExecuterHandler = NULL;
-            }
-
-            xTaskCreate(
-                scanTaskSelector,
-                "Scan Task Selector",
-                128,
-                NULL,
-                2,
-                &taskSelectorHandler
-            );
         }
-
-        vTaskDelay(TASK_DELAY);
     }
 }
 
@@ -111,24 +76,7 @@ void scanTaskSelector(void *pvParameters){
     (void) pvParameters;
 
     for(;;){
-        if(!taskSelector.getActive()){
-            
-            if(taskSelectorHandler != NULL){
-                vTaskDelete(taskSelectorHandler);
-                taskSelectorHandler = NULL;
-            }
-
-            xTaskCreate(
-                scanTaskExecuter,
-                "Scan Task Executer",
-                128,
-                NULL,
-                2,
-                &taskExecuterHandler
-            );
-        }
-
-        vTaskDelay(TASK_DELAY);
+        // vTaskDelay(TASK_DELAY + TASK_SELECTOR_EXECUTER_DELAY_OFFSET);
     }
 }
 
@@ -137,20 +85,47 @@ void scanBlackButton(void *pvParameters){
     (void) pvParameters;
 
     for(;;){
+        // vTaskDelay(TASK_DELAY + BLACK_BUTTON_DELAY_OFFSET);
+
         blackButton.scanButtonState();
 
         if(blackButton.getButtonPressed()){
-            xTaskCreate(
-                scanTaskSelector,
-                "Scan Task Selector",
-                128,
-                NULL,
-                2,
-                &greenLedFrequencyHandler
-            );
-        }
+            if(taskSelectorHandler != NULL){
+                vTaskDelete(taskSelectorHandler);
+                taskSelectorHandler = NULL;
+            }
 
-        vTaskDelay(TASK_DELAY);
+            if(taskExecuterHandler != NULL){
+                vTaskDelete(taskExecuterHandler);
+                taskExecuterHandler = NULL;
+            }
+
+            taskSelector.toggleActive();
+
+            if(taskSelector.getActive()){
+                xTaskCreate(
+                    scanTaskSelector,
+                    "Scan Task Selector",
+                    128,
+                    NULL,
+                    2,
+                    &taskSelectorHandler
+                );
+
+                printf("Task Selector: active\n\r");
+            }else{
+                xTaskCreate(
+                    scanTaskExecuter,
+                    "Scan Task Executer",
+                    128,
+                    NULL,
+                    2,
+                    &taskExecuterHandler
+                );
+
+                printf("Task Selector: inactive\n\r");
+            }
+        }
     }
 }
 
@@ -159,20 +134,14 @@ void scanRedButton(void *pvParameters){
     (void) pvParameters;
 
     for(;;){
+        // vTaskDelay(TASK_DELAY + RED_BUTTON_DELAY_OFFSET);
+
         redButton.scanButtonState();
 
         if(redButton.getButtonPressed()){
-            xTaskCreate(
-                decreaseGreenLedFrequency,
-                "Decrease Green Led Frequency",
-                128,
-                NULL,
-                2,
-                &greenLedFrequencyHandler
-            );
+            taskExecuter.decreaseFrequency();
+            printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
         }
-
-        vTaskDelay(TASK_DELAY);
     }
 }
 
@@ -181,20 +150,14 @@ void scanGreenButton(void *pvParameters){
     (void) pvParameters;
 
     for(;;){
+        // vTaskDelay(TASK_DELAY + GREEN_BUTTON_DELAY_OFFSET);
+
         greenButton.scanButtonState();
 
         if(greenButton.getButtonPressed()){
-            xTaskCreate(
-                increaseGreenLedFrequency,
-                "Increase Green Led Frequency",
-                128,
-                NULL,
-                2,
-                &greenLedFrequencyHandler
-            );
+            taskExecuter.increaseFrequency();
+            printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
         }
-
-        vTaskDelay(TASK_DELAY);
     }
 }
 
@@ -265,7 +228,7 @@ void setup(){
         128,
         NULL,
         3,
-        NULL
+        &blackButtonHandler
     );
 
     xTaskCreate(
@@ -274,7 +237,7 @@ void setup(){
         128,
         NULL,
         3,
-        NULL
+        &redButtonHandler
     );
 
     xTaskCreate(
@@ -283,18 +246,13 @@ void setup(){
         128,
         NULL,
         3,
-        NULL
+        &greenButtonHandler
     );
 
     taskSelector.toggleActive();
-    xTaskCreate(
-        scanTaskSelector,
-        "Scan Task Selector",
-        128,
-        NULL,
-        2,
-        &taskSelectorHandler
-    );
+
+    vTaskStartScheduler();
+    printf("Program started\n\r");
 }
 
 void loop(){}
