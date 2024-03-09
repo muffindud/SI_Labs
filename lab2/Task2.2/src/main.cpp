@@ -1,10 +1,11 @@
-#define TASK_DELAY 10
+#define TASK_DELAY_MS 100
 
-#define BLACK_BUTTON_DELAY_OFFSET 2
-#define RED_BUTTON_DELAY_OFFSET 3
-#define GREEN_BUTTON_DELAY_OFFSET 5
-#define TASK_SELECTOR_EXECUTER_DELAY_OFFSET 7
-#define TASK_FREQUENCY_DELAY_OFFSET 11
+#define TASK_DELAY_TICKS 0
+
+#define BLACK_BUTTON_DELAY_OFFSET_TICKS 0
+#define RED_BUTTON_DELAY_OFFSET_TICKS 1
+#define GREEN_BUTTON_DELAY_OFFSET_TICK 2
+#define TASK_EXECUTER_DELAY_OFFSET_TICKS 3
 
 #define RED_LED 13
 #define GREEN_LED 12
@@ -53,20 +54,27 @@ void loop();
 // Dependent task
 void scanTaskExecuter(void *pvParameters){
     (void) pvParameters;
+    TickType_t xLastWakeTime;
 
+    vTaskDelay(TASK_DELAY_TICKS + TASK_EXECUTER_DELAY_OFFSET_TICKS);
+
+    xLastWakeTime = xTaskGetTickCount();
     for(;;){
-        vTaskDelay(taskExecuter.getDelay() / portTICK_PERIOD_MS);
         greenLed.togglePowerState();
+
+        vTaskDelayUntil(&xLastWakeTime, taskExecuter.getDelay() / portTICK_PERIOD_MS);
     }
 }
 
 // Permanent task
 void scanBlackButton(void *pvParameters){
     (void) pvParameters;
+    TickType_t xLastWakeTime;
 
+    vTaskDelay(TASK_DELAY_TICKS + BLACK_BUTTON_DELAY_OFFSET_TICKS);
+
+    xLastWakeTime = xTaskGetTickCount();
     for(;;){
-        // vTaskDelay(TASK_DELAY + BLACK_BUTTON_DELAY_OFFSET);
-
         blackButton.scanButtonState();
 
         if(blackButton.getButtonPressed()){
@@ -92,42 +100,52 @@ void scanBlackButton(void *pvParameters){
                 // printf("Task Selector: inactive\n\r");
             }
         }
+
+        vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
 // Permanent task
 void scanRedButton(void *pvParameters){
     (void) pvParameters;
+    TickType_t xLastWakeTime;
 
+    vTaskDelay(TASK_DELAY_TICKS + RED_BUTTON_DELAY_OFFSET_TICKS);
+
+    xLastWakeTime = xTaskGetTickCount();
     for(;;){
-        // vTaskDelay(TASK_DELAY + RED_BUTTON_DELAY_OFFSET);
-
         redButton.scanButtonState();
 
         if(redButton.getButtonPressed()){
             taskExecuter.decreaseFrequency();
             printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
         }
+
+        vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
 // Permanent task
 void scanGreenButton(void *pvParameters){
     (void) pvParameters;
+    TickType_t xLastWakeTime;
 
+    vTaskDelay(TASK_DELAY_TICKS + GREEN_BUTTON_DELAY_OFFSET_TICK);
+
+    xLastWakeTime = xTaskGetTickCount();
     for(;;){
-        // vTaskDelay(TASK_DELAY + GREEN_BUTTON_DELAY_OFFSET);
-
         greenButton.scanButtonState();
 
         if(greenButton.getButtonPressed()){
             taskExecuter.increaseFrequency();
             printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
         }
+
+        vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
-// Permanent task
+// Permanent task (TODO)
 void secretTask(){
     bool lastGreenLedState = greenLed.getPowerState();
     bool lastRedLedState = redLed.getPowerState();
