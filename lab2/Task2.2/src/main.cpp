@@ -1,3 +1,5 @@
+#define TASK_DELAY 10
+
 #define RED_LED 13
 #define GREEN_LED 12
 
@@ -27,54 +29,176 @@ LedTaskExcuter taskExecuter;
 
 SerialIO serialIO;
 
-void increaseGreenLedFrequency(){
-    taskExecuter.increaseFrequency();
-    printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
-    return;
+TaskHandle_t taskSelectorHandler = NULL;
+TaskHandle_t taskExecuterHandler = NULL;
+TaskHandle_t greenLedFrequencyHandler = NULL;
+
+void increaseGreenLedFrequency(void *pvParameters);
+void decreaseGreenLedFrequency(void *pvParameters);
+void scanTaskExecuter(void *pvParameters);
+void scanTaskSelector(void *pvParameters);
+void scanBlackButton(void *pvParameters);
+void scanRedButton(void *pvParameters);
+void scanGreenButton(void *pvParameters);
+void secretTask();
+void scanSequence();
+void setup();
+void loop();
+
+// Temporary task
+void increaseGreenLedFrequency(void *pvParameters){
+    (void) pvParameters;
+
+    for(;;){
+        taskExecuter.increaseFrequency();
+        printf("Delay: %ld (-%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
+
+        if(greenLedFrequencyHandler != NULL){
+            vTaskDelete(greenLedFrequencyHandler);
+            greenLedFrequencyHandler = NULL;
+        }
+    }
 }
 
-void decreaseGreenLedFrequency(){
-    taskExecuter.decreaseFrequency();
-    printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
-    return;
+// Temporary task
+void decreaseGreenLedFrequency(void *pvParameters){
+    (void) pvParameters;
+
+    for(;;){
+        taskExecuter.decreaseFrequency();
+        printf("Delay: %ld (+%ld)\n\r", taskExecuter.getDelay(), DELAY_STEP);
+
+        if(greenLedFrequencyHandler != NULL){
+            vTaskDelete(greenLedFrequencyHandler);
+            greenLedFrequencyHandler = NULL;
+        }
+    }
 }
 
-void scanTaskExecuter(){
-    // TODO: Adapt to FreeRTOS
+// Dependent task
+void scanTaskExecuter(void *pvParameters){
+    (void) pvParameters;
 
-    return;
+    for(;;){
+        if(taskSelector.getActive()){
+            taskExecuter.snapTime();
+            if(taskExecuter.getPassedTime() > taskExecuter.getDelay()){
+                greenLed.togglePowerState();
+                taskExecuter.startTimer();
+            }
+            
+            if(taskExecuterHandler != NULL){
+                vTaskDelete(taskExecuterHandler);
+                taskExecuterHandler = NULL;
+            }
+
+            xTaskCreate(
+                scanTaskSelector,
+                "Scan Task Selector",
+                128,
+                NULL,
+                2,
+                &taskSelectorHandler
+            );
+        }
+
+        vTaskDelay(TASK_DELAY);
+    }
 }
 
-void scanTaskSelector(){
-    // TODO: Adapt to FreeRTOS
+// Dependent task
+void scanTaskSelector(void *pvParameters){
+    (void) pvParameters;
 
-    return;
+    for(;;){
+        if(!taskSelector.getActive()){
+            
+            if(taskSelectorHandler != NULL){
+                vTaskDelete(taskSelectorHandler);
+                taskSelectorHandler = NULL;
+            }
+
+            xTaskCreate(
+                scanTaskExecuter,
+                "Scan Task Executer",
+                128,
+                NULL,
+                2,
+                &taskExecuterHandler
+            );
+        }
+
+        vTaskDelay(TASK_DELAY);
+    }
 }
 
-void scanBlackButton(){
-    blackButton.scanButtonState();
+// Permanent task
+void scanBlackButton(void *pvParameters){
+    (void) pvParameters;
 
-    // TODO: Adapt to FreeRTOS
+    for(;;){
+        blackButton.scanButtonState();
 
-    return;
+        if(blackButton.getButtonPressed()){
+            xTaskCreate(
+                scanTaskSelector,
+                "Scan Task Selector",
+                128,
+                NULL,
+                2,
+                &greenLedFrequencyHandler
+            );
+        }
+
+        vTaskDelay(TASK_DELAY);
+    }
 }
 
-void scanRedButton(){
-    redButton.scanButtonState();
+// Permanent task
+void scanRedButton(void *pvParameters){
+    (void) pvParameters;
 
-    // TODO: Adapt to FreeRTOS
+    for(;;){
+        redButton.scanButtonState();
 
-    return;
+        if(redButton.getButtonPressed()){
+            xTaskCreate(
+                decreaseGreenLedFrequency,
+                "Decrease Green Led Frequency",
+                128,
+                NULL,
+                2,
+                &greenLedFrequencyHandler
+            );
+        }
+
+        vTaskDelay(TASK_DELAY);
+    }
 }
 
-void scanGreenButton(){
-    greenButton.scanButtonState();
+// Permanent task
+void scanGreenButton(void *pvParameters){
+    (void) pvParameters;
 
-    // TODO: Adapt to FreeRTOS
+    for(;;){
+        greenButton.scanButtonState();
 
-    return;
+        if(greenButton.getButtonPressed()){
+            xTaskCreate(
+                increaseGreenLedFrequency,
+                "Increase Green Led Frequency",
+                128,
+                NULL,
+                2,
+                &greenLedFrequencyHandler
+            );
+        }
+
+        vTaskDelay(TASK_DELAY);
+    }
 }
 
+// Permanent task
 void secretTask(){
     bool lastGreenLedState = greenLed.getPowerState();
     bool lastRedLedState = redLed.getPowerState();
@@ -135,7 +259,44 @@ void setup(){
 
     serialIO.setup();
 
+    xTaskCreate(
+        scanBlackButton,
+        "Read Black Button State",
+        128,
+        NULL,
+        3,
+        NULL
+    );
+
+    xTaskCreate(
+        scanRedButton,
+        "Read Red Button State",
+        128,
+        NULL,
+        3,
+        NULL
+    );
+
+    xTaskCreate(
+        scanGreenButton,
+        "Read Green Button State",
+        128,
+        NULL,
+        3,
+        NULL
+    );
+
+    taskSelector.toggleActive();
+    xTaskCreate(
+        scanTaskSelector,
+        "Scan Task Selector",
+        128,
+        NULL,
+        2,
+        &taskSelectorHandler
+    );
 }
 
-void loop(){
-}
+void loop(){}
+
+// TODO: Implement proper delaying
