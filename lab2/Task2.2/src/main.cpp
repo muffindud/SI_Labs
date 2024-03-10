@@ -18,6 +18,7 @@
 
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
+#include <semphr.h>
 
 #include "Led.h"
 #include "Button.h"
@@ -44,6 +45,8 @@ TaskHandle_t greenButtonHandler = NULL;
 
 TaskHandle_t taskExecuterHandler = NULL;
 
+SemaphoreHandle_t xSemaphore = NULL;
+
 void scanTaskExecuter(void *pvParameters);
 void scanBlackButton(void *pvParameters);
 void scanRedButton(void *pvParameters);
@@ -57,11 +60,15 @@ void scanTaskExecuter(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
 
+    xSemaphoreTake(xSemaphore, portMAX_DELAY);
     vTaskDelay(TASK_DELAY_TICKS + TASK_EXECUTER_DELAY_OFFSET_TICKS);
+    xSemaphoreGive(xSemaphore);
 
     xLastWakeTime = xTaskGetTickCount();
     for(;;){
+        xSemaphoreTake(xSemaphore, portMAX_DELAY);
         greenLed.togglePowerState();
+        xSemaphoreGive(xSemaphore);
 
         vTaskDelayUntil(&xLastWakeTime, taskExecuter.getDelay() / portTICK_PERIOD_MS);
     }
@@ -71,12 +78,15 @@ void scanBlackButton(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
 
+    xSemaphoreTake(xSemaphore, portMAX_DELAY);
     vTaskDelay(TASK_DELAY_TICKS + BLACK_BUTTON_DELAY_OFFSET_TICKS);
+    xSemaphoreGive(xSemaphore);
 
     xLastWakeTime = xTaskGetTickCount();
     for(;;){
         blackButton.scanButtonState();
 
+        xSemaphoreTake(xSemaphore, portMAX_DELAY);
         if(blackButton.getButtonPressed()){
             taskSelector.toggleActive();
 
@@ -98,6 +108,7 @@ void scanBlackButton(void *pvParameters){
 
             scanSequence();
         }
+        xSemaphoreGive(xSemaphore);
 
         vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
@@ -107,10 +118,13 @@ void scanRedButton(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
 
+    xSemaphoreTake(xSemaphore, portMAX_DELAY);
     vTaskDelay(TASK_DELAY_TICKS + RED_BUTTON_DELAY_OFFSET_TICKS);
+    xSemaphoreGive(xSemaphore);
 
     xLastWakeTime = xTaskGetTickCount();
     for(;;){
+        xSemaphoreTake(xSemaphore, portMAX_DELAY);
         redButton.scanButtonState();
 
         if(redButton.getButtonPressed()){
@@ -119,6 +133,7 @@ void scanRedButton(void *pvParameters){
         
             scanSequence();
         }
+        xSemaphoreGive(xSemaphore);
 
         vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
@@ -128,10 +143,13 @@ void scanGreenButton(void *pvParameters){
     (void) pvParameters;
     TickType_t xLastWakeTime;
 
+    xSemaphoreTake(xSemaphore, portMAX_DELAY);
     vTaskDelay(TASK_DELAY_TICKS + GREEN_BUTTON_DELAY_OFFSET_TICK);
+    xSemaphoreGive(xSemaphore);
 
     xLastWakeTime = xTaskGetTickCount();
     for(;;){
+        xSemaphoreTake(xSemaphore, portMAX_DELAY);
         greenButton.scanButtonState();
 
         if(greenButton.getButtonPressed()){
@@ -140,6 +158,7 @@ void scanGreenButton(void *pvParameters){
 
             scanSequence();
         }
+        xSemaphoreGive(xSemaphore);
 
         vTaskDelayUntil(&xLastWakeTime, TASK_DELAY_MS / portTICK_PERIOD_MS);
     }
@@ -210,6 +229,8 @@ void setup(){
 
     taskSelector.toggleActive();
 
+    xSemaphore = xSemaphoreCreateMutex();
+
     xTaskCreate(
         scanBlackButton,
         "Read Black Button State",
@@ -241,5 +262,3 @@ void setup(){
 }
 
 void loop(){}
-
-// TODO: Implement proper delaying
