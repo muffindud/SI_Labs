@@ -1,3 +1,7 @@
+// Analog to voltage: https://docs.arduino.cc/built-in-examples/basics/ReadAnalogVoltage/
+// Photoresistor (voltage to resistance to lux): https://docs.wokwi.com/parts/wokwi-photoresistor-sensor
+// Thermistor (voltage to resistance to temperature): https://docs.wokwi.com/parts/wokwi-ntc-temperature-sensor
+
 #define NTC_THERMISTOR_PIN A3
 #define PHOTORESISTOR_PIN A2
 
@@ -33,9 +37,8 @@ void loop(){
     printf("------------------------------------\n\r");
     
     float light = photoresistor.readData();
-    printf("Light: %d\n\r", (int)light);
+    printf("Light: %ld\n\r", (long int)light);
     printf("====================================\n\r");
-
 
     delay(1000);
 }

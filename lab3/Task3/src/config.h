@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-    #define DEBUG true
+    #define DEBUG false
 
 #if DEBUG
     #include <stdio.h>

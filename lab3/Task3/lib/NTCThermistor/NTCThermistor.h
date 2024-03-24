@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+#include "Convertor.h"
 #include "../../src/config.h"
 
 class NTCThermistor{

@@ -10,8 +10,8 @@ void Photoresistor::setup(){
 
 float Photoresistor::readData(){
     int reading = analogRead(this->pin);
-    float voltage = reading / 1024. * 5;
-    float resistance = 2000 * voltage / (1 - voltage / 5);
+    float voltage = toVoltage(reading);
+    float resistance = toResistance(voltage);
     float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, 1 / GAMMA);
 
     #if DEBUG
