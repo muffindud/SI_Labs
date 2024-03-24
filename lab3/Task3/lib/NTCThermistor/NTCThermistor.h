@@ -9,6 +9,7 @@ class NTCThermistor{
     public:
         NTCThermistor(int pin);
         void setup();
+        float readData();
 };
 
 #endif
