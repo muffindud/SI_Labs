@@ -4,7 +4,6 @@
 #include <Arduino.h>
 
 #include "Convertor.h"
-#include "../../src/config.h"
 
 class NTCThermistor{
     private:
@@ -12,13 +11,7 @@ class NTCThermistor{
     public:
         NTCThermistor(int pin);
         void setup();
-
         int getReading();
-        float getVoltage();
-        float getResistance();
-        float getTemperature();
-
-        float readData();
 };
 
 #endif
