@@ -1,15 +1,18 @@
-#ifndef NTC_THERMISTOR_H
-#define NTC_THERMISTOR_H
+#ifndef PHOTORESISTOR_H
+#define PHOTORESISTOR_H
+
+#define GAMMA 0.7
+#define RL10 50
 
 #include <Arduino.h>
 
 #include "../../src/config.h"
 
-class NTCThermistor{
+class Photoresistor{
     private:
         int pin;
     public:
-        NTCThermistor(int pin);
+        Photoresistor(int pin);
         void setup();
         float readData();
 };
