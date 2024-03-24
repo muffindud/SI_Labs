@@ -22,3 +22,13 @@ int saltPeperFilter(int data[SALT_PEPER_SIZE]){
 
     return data[(int)(SALT_PEPER_SIZE / 2)];
 }
+
+float weightedAverage(int data[WEIGHTS_SIZE]){
+    float sum = 0;
+
+    for(int i = 0; i < WEIGHTS_SIZE; i++){
+        sum += data[i] * WEIGHTS[i];
+    }
+
+    return sum;
+}
