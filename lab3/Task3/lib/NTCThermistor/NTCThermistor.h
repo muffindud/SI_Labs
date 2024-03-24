@@ -12,6 +12,12 @@ class NTCThermistor{
     public:
         NTCThermistor(int pin);
         void setup();
+
+        int getReading();
+        float getVoltage();
+        float getResistance();
+        float getTemperature();
+
         float readData();
 };
 

@@ -9,10 +9,10 @@ void NTCThermistor::setup(){
 }
 
 float NTCThermistor::readData(){
-    int reading = analogRead(this->pin);
-    float voltage = toVoltage(reading);
-    float resistance = toResistance(voltage);
-    float temperature = 1.0 / (1.0 / 298.15 + 1.0 / 3950.0 * log(resistance / 10000.0)) - 273.15;
+    int reading = getReading();
+    float voltage = getVoltage();
+    float resistance = getResistance();
+    float temperature = getTemperature();
 
     #if DEBUG
         printf("NTC Thermistor reading: %d\n\r", reading);
@@ -21,4 +21,20 @@ float NTCThermistor::readData(){
     #endif
 
     return temperature;
+}
+
+int NTCThermistor::getReading(){
+    return analogRead(this->pin);
+}
+
+float NTCThermistor::getVoltage(){
+    return toVoltage(this->getReading());
+}
+
+float NTCThermistor::getResistance(){
+    return toResistance(this->getVoltage());
+}
+
+float NTCThermistor::getTemperature(){
+    return 1.0 / (1.0 / 298.15 + 1.0 / 3950.0 * log(this->getResistance() / 10000.0)) - 273.15;
 }
