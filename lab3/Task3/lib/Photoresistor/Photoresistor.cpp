@@ -9,10 +9,10 @@ void Photoresistor::setup(){
 }
 
 float Photoresistor::readData(){
-    int reading = analogRead(this->pin);
-    float voltage = toVoltage(reading);
-    float resistance = toResistance(voltage);
-    float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, 1 / GAMMA);
+    int reading = getReading();
+    float voltage = getVoltage();
+    float resistance = getResistance();
+    float lux = getLux();
 
     #if DEBUG
         printf("Photoresistor reading: %d\n\r", reading);
@@ -21,4 +21,20 @@ float Photoresistor::readData(){
     #endif
 
     return lux;
+}
+
+int Photoresistor::getReading(){
+    return analogRead(this->pin);
+}
+
+float Photoresistor::getVoltage(){
+    return toVoltage(this->getReading());
+}
+
+float Photoresistor::getResistance(){
+    return toResistance(this->getVoltage());
+}
+
+float Photoresistor::getLux(){
+    return pow(RL10 * 1e3 * pow(10, GAMMA) / this->getResistance(), 1 / GAMMA);
 }

@@ -15,6 +15,12 @@ class Photoresistor{
     public:
         Photoresistor(int pin);
         void setup();
+
+        int getReading();
+        float getVoltage();
+        float getResistance();
+        float getLux();
+
         float readData();
 };
 
