@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "author": "Corneliu",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "bb1",
+      "top": -51.9,
+      "left": -25.5,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "top": -22.2,
+      "left": 212.6,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-ntc-temperature-sensor",
+      "id": "ntc1",
+      "top": 137,
+      "left": -48.6,
+      "attrs": {}
+    },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -120, "left": 1.5, "rotate": 270, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": -33.6,
+      "left": 85.85,
+      "rotate": 90,
+      "attrs": { "value": "10000" }
+    }
+  ],
+  "connections": [
+    [ "bb1:27b.f", "bb1:tn.22", "black", [ "h0" ] ],
+    [ "bb1:29b.f", "uno:A3", "green", [ "h0" ] ],
+    [ "uno:5V", "bb1:tp.17", "red", [ "h0" ] ],
+    [ "uno:GND.2", "bb1:tn.18", "black", [ "h0" ] ],
+    [ "bb1:2b.f", "bb1:tn.1", "black", [ "h0" ] ],
+    [ "bb1:5b.f", "bb1:tp.4", "red", [ "h0" ] ],
+    [ "dht1:VCC", "bb1:5b.j", "", [ "$bb" ] ],
+    [ "dht1:SDA", "bb1:4b.j", "", [ "$bb" ] ],
+    [ "dht1:NC", "bb1:3b.j", "", [ "$bb" ] ],
+    [ "dht1:GND", "bb1:2b.j", "", [ "$bb" ] ],
+    [ "bb1:4b.f", "uno:2", "green", [ "h336", "v230.4" ] ],
+    [ "r2:1", "bb1:4b.g", "", [ "$bb" ] ],
+    [ "r2:2", "bb1:10b.g", "", [ "$bb" ] ],
+    [ "bb1:10b.f", "bb1:tp.8", "red", [ "h0" ] ],
+    [ "ntc1:GND", "bb1:27b.j", "", [ "$bb" ] ],
+    [ "ntc1:VCC", "bb1:28b.j", "", [ "$bb" ] ],
+    [ "ntc1:OUT", "bb1:29b.j", "", [ "$bb" ] ],
+    [ "bb1:28b.f", "bb1:tp.23", "red", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
