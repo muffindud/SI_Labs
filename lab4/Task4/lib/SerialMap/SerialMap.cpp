@@ -17,11 +17,21 @@ static int getCharSerial(__attribute__((unused)) FILE *stream){
 }
 
 static int putChar(char c, __attribute__((unused)) FILE *stream){
-    if(serialPrint){
-        return Serial.write(c) == 1 ? 0 : -1;
-    }else{
-        int ret;
+    int ret;
 
+    if(serialPrint){
+        if(c == 127){
+            Serial.write(8);
+            ret = Serial.write(' ');
+            Serial.write(8);
+        }else if(c == 13){
+            ret = Serial.write(c);
+            Serial.write(10);
+        }
+        else{ 
+            ret = Serial.write(c);
+        }
+    }else{
         if(c == 13){
             lcdCol = 0;
             lcdRow++;
@@ -49,9 +59,9 @@ static int putChar(char c, __attribute__((unused)) FILE *stream){
                 }
             }
         }
-
-        return ret == 1 ? 0 : -1;
     }
+
+    return ret == 1 ? 0 : -1;
 }
 
 void redirectStdout(){
