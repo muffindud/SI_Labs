@@ -9,9 +9,8 @@ Relay relay(RELAY_IN);
 
 void setup(){
     stdinToSerial();
-    stdoutToLCD();
+    redirectStdout();
 }
 
 void loop(){
-
 }

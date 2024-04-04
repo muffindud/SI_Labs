@@ -11,8 +11,24 @@
 #include <stdio.h>
 #include "LCD.h"
 
+/*
+    Redirect stdout (default to LCD).
+*/
+void redirectStdout();
+
+/*
+    Map the standard output to the serial port.
+*/ 
 void stdoutToSerial();
-void stdinToSerial();
+
+/*
+    Map the standard output to the LCD.
+*/
 void stdoutToLCD();
+
+/*
+    Map the standard input to the serial port.
+*/
+void stdinToSerial();
 
 #endif
