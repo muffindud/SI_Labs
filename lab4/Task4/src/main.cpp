@@ -9,12 +9,62 @@
 Relay relay(RELAY_IN);
 L298N motor(MOTOR_IN1, MOTOR_IN2, MOTOR_EN);
 
-String inputBuffer;
+String inputBuffer = "";
+
+int getPercentage(String input){
+    bool negative = false;
+
+    if(input[input.length() - 1] != '%'){
+        return -1;
+    }
+
+    if(input[0] == '-'){
+        negative = true;
+        input.remove(0, 1);
+    }
+
+    int percentage = input.substring(0, input.length() - 1).toInt();
+
+    return negative ? -percentage : percentage;
+}
 
 void setup(){
     stdinToSerial();
     redirectStdout();
+
+    delay(1000);
 }
 
 void loop(){
+    stdoutToLCD();
+    clearLCD();
+    printf("%d%%", motor.getSpeed());
+
+    char c = getchar();
+    if(c){
+        stdoutToSerial();
+
+        if(c == 13){
+            if(inputBuffer == "ON"){
+                relay.setState(true);
+            }else if(inputBuffer == "OFF"){
+                relay.setState(false);
+            }else{
+                if(getPercentage(inputBuffer) != -1){
+                    motor.setSpeed(getPercentage(inputBuffer));
+                }else if(inputBuffer.length() > 0){
+                    printf("\nInvalid input: %s", inputBuffer.c_str());
+                }
+            }
+
+            inputBuffer = "";
+        }else if(c == 127){
+            if(inputBuffer.length() > 0)
+                inputBuffer.remove(inputBuffer.length() - 1);
+        }else if(c != 127 && c != 13 && c != 10 && c != 8){
+            inputBuffer += c;
+        }
+
+        printf("%c", c);
+    }
 }
