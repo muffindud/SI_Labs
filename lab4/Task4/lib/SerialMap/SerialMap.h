@@ -31,4 +31,9 @@ void stdoutToLCD();
 */
 void stdinToSerial();
 
+/*
+    Clear the LCD.
+*/
+void clearLCD();
+
 #endif

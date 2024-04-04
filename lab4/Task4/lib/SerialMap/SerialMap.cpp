@@ -24,9 +24,8 @@ static int putChar(char c, __attribute__((unused)) FILE *stream){
             Serial.write(8);
             ret = Serial.write(' ');
             Serial.write(8);
-        }else if(c == 13){
-            ret = Serial.write(c);
-            Serial.write(10);
+        }else if(c == 10 || c == 13){
+            ret = Serial.write(13) && Serial.write(10);
         }
         else{ 
             ret = Serial.write(c);
@@ -93,4 +92,10 @@ void stdinToSerial(){
     serialEnabled = true;
 
     _stdin = fdevopen(NULL, &getCharSerial);
+}
+
+void clearLCD(){
+    lcd->clear();
+    lcdRow = 0;
+    lcdCol = 0;
 }
