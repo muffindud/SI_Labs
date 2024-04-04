@@ -32,13 +32,19 @@ void setup(){
     stdinToSerial();
     redirectStdout();
 
-    delay(1000);
-}
-
-void loop(){
     stdoutToLCD();
     clearLCD();
     printf("%d%%", motor.getSpeed());
+}
+
+void loop(){
+    if(motor.getSpeed() != motor.getTargetSpeed()){
+        motor.setSpeed();
+
+        stdoutToLCD();
+        clearLCD();
+        printf("%d%%", motor.getSpeed());
+    }
 
     char c = getchar();
     if(c){
@@ -51,7 +57,7 @@ void loop(){
                 relay.setState(false);
             }else{
                 if(getPercentage(inputBuffer) != -1){
-                    motor.setSpeed(getPercentage(inputBuffer));
+                    motor.setTargetSpeed(getPercentage(inputBuffer));
                 }else if(inputBuffer.length() > 0){
                     printf("\nInvalid input: %s", inputBuffer.c_str());
                 }
