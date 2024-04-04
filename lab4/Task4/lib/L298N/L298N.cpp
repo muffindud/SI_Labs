@@ -1,0 +1,50 @@
+#include "L298N.h"
+
+L298N::L298N(int in1, int in2, int en){
+    this->in1 = in1;
+    this->in2 = in2;
+    this->en = en;
+    this->speed = 0;
+
+    pinMode(this->in1, OUTPUT);
+    pinMode(this->in2, OUTPUT);
+    pinMode(this->en, OUTPUT);
+}
+
+void L298N::setSpeed(int speed){
+    if(speed > 100){
+        speed = 100;
+    }else if(speed < -100){
+        speed = -100;
+    }
+    
+    if(speed > this->speed){
+        speed += SPEED_STEP;
+    }else if(speed < this->speed){
+        speed -= SPEED_STEP;
+    }
+    
+    if(speed == 0){
+        analogWrite(this->en, 0);
+        digitalWrite(this->in1, LOW);
+        digitalWrite(this->in2, LOW);
+    }else if(speed > 0){
+        analogWrite(this->en, this->analogMap(speed));
+        digitalWrite(this->in1, HIGH);
+        digitalWrite(this->in2, LOW);
+    }else{
+        analogWrite(this->en, this->analogMap(speed));
+        digitalWrite(this->in1, LOW);
+        digitalWrite(this->in2, HIGH);
+    }
+}
+
+int L298N::getSpeed(){
+    return this->speed;
+}
+
+int L298N::analogMap(int speed){
+    speed = abs(speed);
+
+    return (int)map(speed, 0, 100, 0, 255);
+}
