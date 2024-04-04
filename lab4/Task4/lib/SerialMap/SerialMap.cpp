@@ -12,8 +12,8 @@ bool serialEnabled = false;
 bool serialPrint = false;
 
 static int getCharSerial(__attribute__((unused)) FILE *stream){
-    while(!Serial.available());
-    return Serial.read();
+    if(Serial.available())
+        return Serial.read();
 }
 
 static int putChar(char c, __attribute__((unused)) FILE *stream){
