@@ -11,29 +11,33 @@ L298N::L298N(int in1, int in2, int en){
     pinMode(this->en, OUTPUT);
 }
 
-void L298N::setSpeed(int speed){
+void L298N::setTargetSpeed(int speed){
     if(speed > 100){
-        speed = 100;
+        this->targetSpeed = 100;
     }else if(speed < -100){
-        speed = -100;
+        this->targetSpeed = -100;
+    }else{
+        this->targetSpeed = speed;
     }
-    
-    if(speed > this->speed){
-        speed += SPEED_STEP;
-    }else if(speed < this->speed){
-        speed -= SPEED_STEP;
+}
+
+void L298N::setSpeed(){
+    if(this->targetSpeed > this->speed){
+        this->speed += SPEED_STEP;
+    }else if(this->targetSpeed < this->speed){
+        this->speed -= SPEED_STEP;
     }
-    
-    if(speed == 0){
+
+    if(this->speed == 0){
         analogWrite(this->en, 0);
         digitalWrite(this->in1, LOW);
         digitalWrite(this->in2, LOW);
-    }else if(speed > 0){
-        analogWrite(this->en, this->analogMap(speed));
+    }else if(this->speed > 0){
+        analogWrite(this->en, this->analogMap(this->speed));
         digitalWrite(this->in1, HIGH);
         digitalWrite(this->in2, LOW);
-    }else{
-        analogWrite(this->en, this->analogMap(speed));
+    }else if(this->speed < 0){
+        analogWrite(this->en, this->analogMap(this->speed));
         digitalWrite(this->in1, LOW);
         digitalWrite(this->in2, HIGH);
     }
