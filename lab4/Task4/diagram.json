@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "author": "Corneliu",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "bb1",
+      "top": -368.7,
+      "left": 118.5,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "top": -396.6,
+      "left": 356.6,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay1",
+      "top": -413.4,
+      "left": 102.4,
+      "rotate": 180,
+      "attrs": {}
+    },
+    { "type": "chip-l298n", "id": "chip1", "top": -546.18, "left": 81.6, "attrs": {} },
+    {
+      "type": "wokwi-vcc",
+      "id": "vcc1",
+      "top": -373.64,
+      "left": 67.2,
+      "rotate": 180,
+      "attrs": {}
+    },
+    { "type": "wokwi-gnd", "id": "gnd1", "top": -384, "left": 18.6, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -445.2,
+      "left": 13.4,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd1",
+      "top": -147.2,
+      "left": 399.2,
+      "attrs": { "pins": "i2c" }
+    }
+  ],
+  "connections": [
+    [ "uno:5V", "bb1:tp.12", "red", [ "h0" ] ],
+    [ "uno:GND.2", "bb1:tn.13", "black", [ "h0" ] ],
+    [ "relay1:VCC", "bb1:4b.j", "", [ "$bb" ] ],
+    [ "relay1:GND", "bb1:3b.j", "", [ "$bb" ] ],
+    [ "relay1:IN", "bb1:2b.j", "", [ "$bb" ] ],
+    [ "bb1:3b.f", "bb1:tn.2", "black", [ "h0" ] ],
+    [ "bb1:4b.f", "bb1:tp.3", "red", [ "h0" ] ],
+    [ "bb1:2b.f", "uno:8", "green", [ "h0", "v-48", "h336", "v182.4" ] ],
+    [ "vcc1:VCC", "relay1:COM", "red", [ "v0" ] ],
+    [ "led1:C", "gnd1:GND", "black", [ "v0" ] ],
+    [ "led1:A", "relay1:NO", "red", [ "v0" ] ],
+    [ "lcd1:GND", "bb1:tn.25", "black", [ "h0" ] ],
+    [ "lcd1:VCC", "bb1:tp.25", "red", [ "h0" ] ],
+    [ "lcd1:SDA", "uno:A4", "green", [ "h-48", "v-86.2" ] ],
+    [ "uno:A5", "lcd1:SCL", "green", [ "h-57.5", "v90.7" ] ]
+  ],
+  "dependencies": {}
+}
