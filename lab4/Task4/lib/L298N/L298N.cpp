@@ -41,6 +41,8 @@ void L298N::setSpeed(){
         digitalWrite(this->in1, LOW);
         digitalWrite(this->in2, HIGH);
     }
+
+    delay(10);
 }
 
 int L298N::getSpeed(){
@@ -51,4 +53,8 @@ int L298N::analogMap(int speed){
     speed = abs(speed);
 
     return (int)map(speed, 0, 100, 0, 255);
+}
+
+int L298N::getTargetSpeed(){
+    return this->targetSpeed;
 }

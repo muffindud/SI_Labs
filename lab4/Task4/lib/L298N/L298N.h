@@ -48,6 +48,12 @@ class L298N{
             range: -100 to 100
         */
         int getSpeed();
+
+        /*
+            Get the target speed of the motor in %.
+            range: -100 to 100
+        */
+        int getTargetSpeed();
 };
 
 #endif
