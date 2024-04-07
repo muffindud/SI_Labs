@@ -44,6 +44,12 @@ class L298N{
         void setSpeed();
 
         /*
+            Apply the speed to the motor.
+            Call on each loop iteration.
+        */
+        void applySpeed();
+
+        /*
             Get the speed of the motor in %.
             range: -100 to 100
         */

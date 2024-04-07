@@ -44,6 +44,8 @@ void setup(){
 }
 
 void loop(){
+    motor.applySpeed();
+
     if(motor.getSpeed() != motor.getTargetSpeed()){
         motor.setSpeed();
 
