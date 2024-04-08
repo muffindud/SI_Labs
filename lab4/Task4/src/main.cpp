@@ -23,7 +23,7 @@ int getPercentage(String input){
         input.remove(0, 1);
     }
 
-    for(int i = 0; i < input.length() - 1; i++){
+    for(unsigned int i = 0; i < input.length() - 1; i++){
         if(input[i] < '0' || input[i] > '9'){
             return -1;
         }
@@ -44,8 +44,6 @@ void setup(){
 }
 
 void loop(){
-    motor.applySpeed();
-
     if(motor.getSpeed() != motor.getTargetSpeed()){
         motor.setSpeed();
 
@@ -54,11 +52,43 @@ void loop(){
         printf("%d%%", motor.getSpeed());
     }
 
-    char c = getchar();
-    if(c){
-        stdoutToSerial();
+    #if !TINKERCAD
+        char c = getchar();
 
-        if(c == 13){
+        if(c){
+            stdoutToSerial();
+
+            if(c == 13){
+                if(inputBuffer == "ON"){
+                    relay.setState(true);
+                }else if(inputBuffer == "OFF"){
+                    relay.setState(false);
+                }else{
+                    if(getPercentage(inputBuffer) != -1){
+                        motor.setTargetSpeed(getPercentage(inputBuffer));
+                    }else if(inputBuffer.length() > 0){
+                        printf("\nInvalid input: %s", inputBuffer.c_str());
+                    }
+                }
+
+                inputBuffer = "";
+            }else if(c == 127){
+                if(inputBuffer.length() > 0)
+                    inputBuffer.remove(inputBuffer.length() - 1);
+            }else if(c == 8){
+                if(inputBuffer.length() > 0)
+                    inputBuffer.remove(inputBuffer.length() - 1);
+                c = 127;
+            }else if(c != 127 && c != 13 && c != 10 && c != 8){
+                inputBuffer += c;
+            }
+
+            printf("%c", c);
+        }
+    #else
+        inputBuffer = Serial.readStringUntil('\n');
+
+        if (inputBuffer != ""){
             if(inputBuffer == "ON"){
                 relay.setState(true);
             }else if(inputBuffer == "OFF"){
@@ -72,17 +102,6 @@ void loop(){
             }
 
             inputBuffer = "";
-        }else if(c == 127){
-            if(inputBuffer.length() > 0)
-                inputBuffer.remove(inputBuffer.length() - 1);
-        }else if(c == 8){
-            if(inputBuffer.length() > 0)
-                inputBuffer.remove(inputBuffer.length() - 1);
-            c = 127;
-        }else if(c != 127 && c != 13 && c != 10 && c != 8){
-            inputBuffer += c;
         }
-
-        printf("%c", c);
-    }
+    #endif
 }
