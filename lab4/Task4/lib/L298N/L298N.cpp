@@ -28,19 +28,7 @@ void L298N::setSpeed(){
         this->speed -= SPEED_STEP;
     }
 
-    if(this->speed == 0){
-        analogWrite(this->en, 0);
-        digitalWrite(this->in1, LOW);
-        digitalWrite(this->in2, LOW);
-    }else if(this->speed > 0){
-        analogWrite(this->en, this->analogMap(this->speed));
-        digitalWrite(this->in1, HIGH);
-        digitalWrite(this->in2, LOW);
-    }else if(this->speed < 0){
-        analogWrite(this->en, this->analogMap(this->speed));
-        digitalWrite(this->in1, LOW);
-        digitalWrite(this->in2, HIGH);
-    }
+    this->applySpeed();
 
     delay(10);
 }
