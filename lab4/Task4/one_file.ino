@@ -701,6 +701,9 @@ void loop(){
         inputBuffer = Serial.readStringUntil('\n');
 
         if (inputBuffer != ""){
+            stdoutToSerial();
+            printf("%s\n", inputBuffer.c_str());
+
             if(inputBuffer == "ON"){
                 relay.setState(true);
             }else if(inputBuffer == "OFF"){
