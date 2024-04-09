@@ -1,5 +1,4 @@
 #include <Wire.h>
-#include <stdio.h>
 
 /*
     config.h
@@ -387,105 +386,109 @@ void LCD::LCD_Write(uint8_t output, bool initialization)
     SerialMap.cpp
 */
 
-LCD *lcd = NULL;
+#if !TINKERCAD
+    #include <stdio.h>
 
-int lcdRow = 0;
-int lcdCol = 0;
+    LCD *lcd = NULL;
 
-FILE *_stdin;
-FILE *_stdout;
+    int lcdRow = 0;
+    int lcdCol = 0;
 
-bool serialEnabled = false;
-bool serialPrint = false;
+    FILE *_stdin;
+    FILE *_stdout;
 
-static int getCharSerial(__attribute__((unused)) FILE *stream){
-    if(Serial.available())
-        return Serial.read();
-}
+    bool serialEnabled = false;
+    bool serialPrint = false;
 
-static int putChar(char c, __attribute__((unused)) FILE *stream){
-    int ret;
+    static int getCharSerial(__attribute__((unused)) FILE *stream){
+        if(Serial.available())
+            return Serial.read();
+    }
 
-    if(serialPrint){
-        if(c == 127){
-            Serial.write(8);
-            ret = Serial.write(' ');
-            Serial.write(8);
-        }else if(c == 10 || c == 13){
-            ret = Serial.write(13) && Serial.write(10);
-        }
-        else{ 
-            ret = Serial.write(c);
-        }
-    }else{
-        if(c == 13){
-            lcdCol = 0;
-            lcdRow++;
-            if(lcdRow >= LCD_ROWS){
-                lcdRow = 0;
+    static int putChar(char c, __attribute__((unused)) FILE *stream){
+        int ret;
+
+        if(serialPrint){
+            if(c == 127){
+                Serial.write(8);
+                ret = Serial.write(' ');
+                Serial.write(8);
+            }else if(c == 10 || c == 13){
+                ret = Serial.write(13) && Serial.write(10);
             }
-            ret = 1;
-        }else if(c == 127){
-            lcdCol--;
-            if(lcdCol < 0){
-                lcdCol = 0;
+            else{ 
+                ret = Serial.write(c);
             }
-            lcd->setCursor(lcdCol, lcdRow);
-            ret = lcd->print(' ');
-            lcd->setCursor(lcdCol, lcdRow);
         }else{
-            lcd->setCursor(lcdCol, lcdRow);
-            ret = lcd->print(c);
-            lcdCol++;
-            if(lcdCol >= LCD_COLS){
+            if(c == 13){
                 lcdCol = 0;
                 lcdRow++;
                 if(lcdRow >= LCD_ROWS){
                     lcdRow = 0;
                 }
+                ret = 1;
+            }else if(c == 127){
+                lcdCol--;
+                if(lcdCol < 0){
+                    lcdCol = 0;
+                }
+                lcd->setCursor(lcdCol, lcdRow);
+                ret = lcd->print(' ');
+                lcd->setCursor(lcdCol, lcdRow);
+            }else{
+                lcd->setCursor(lcdCol, lcdRow);
+                ret = lcd->print(c);
+                lcdCol++;
+                if(lcdCol >= LCD_COLS){
+                    lcdCol = 0;
+                    lcdRow++;
+                    if(lcdRow >= LCD_ROWS){
+                        lcdRow = 0;
+                    }
+                }
             }
         }
+
+        return ret == 1 ? 0 : -1;
     }
 
-    return ret == 1 ? 0 : -1;
-}
+    void redirectStdout(){
+        if(lcd == NULL){
+            lcd = new LCD(LCD_ADDR, LCD_COLS, LCD_ROWS);
+            lcd->begin();
+        }
 
-void redirectStdout(){
-    if(lcd == NULL){
-        lcd = new LCD(LCD_ADDR, LCD_COLS, LCD_ROWS);
-        lcd->begin();
+        if(!serialEnabled){
+            Serial.begin(SERIAL_BAUD);
+            serialEnabled = true;
+        }
+
+        _stdout = fdevopen(&putChar, NULL);
     }
 
-    if(!serialEnabled){
-        Serial.begin(SERIAL_BAUD);
+    void stdoutToSerial(){
+        serialPrint = true;
+    }
+
+    void stdoutToLCD(){
+        serialPrint = false;
+    }
+
+    void stdinToSerial(){
+        if(!serialEnabled)
+            Serial.begin(SERIAL_BAUD);
+        
         serialEnabled = true;
+
+        _stdin = fdevopen(NULL, &getCharSerial);
     }
 
-    _stdout = fdevopen(&putChar, NULL);
-}
-
-void stdoutToSerial(){
-    serialPrint = true;
-}
-
-void stdoutToLCD(){
-    serialPrint = false;
-}
-
-void stdinToSerial(){
-    if(!serialEnabled)
-        Serial.begin(SERIAL_BAUD);
-    
-    serialEnabled = true;
-
-    _stdin = fdevopen(NULL, &getCharSerial);
-}
-
-void clearLCD(){
-    lcd->clear();
-    lcdRow = 0;
-    lcdCol = 0;
-}
+    void clearLCD(){
+        lcd->clear();
+        lcdRow = 0;
+        lcdCol = 0;
+    }
+#endif
 
 /*
     L298N.h
@@ -617,6 +620,9 @@ bool Relay::getState(){
 /*
     main.cpp
 */
+#if TINKERCAD
+    LCD lcd = LCD(LCD_ADDR, LCD_COLS, LCD_ROWS);
+#endif
 
 Relay relay(RELAY_IN);
 L298N motor(MOTOR_IN1, MOTOR_IN2, MOTOR_EN);
@@ -647,21 +653,33 @@ int getPercentage(String input){
 }
 
 void setup(){
-    stdinToSerial();
-    redirectStdout();
+    #if !TINKERCAD
+        stdinToSerial();
+        redirectStdout();
 
-    stdoutToLCD();
-    clearLCD();
-    printf("%d%%", motor.getSpeed());
+        stdoutToLCD();
+        clearLCD();
+        printf("%d%%", motor.getSpeed());
+    #else
+        Serial.begin(SERIAL_BAUD);
+
+        lcd.begin();
+        lcd.print(motor.getSpeed());
+    #endif
 }
 
 void loop(){
     if(motor.getSpeed() != motor.getTargetSpeed()){
         motor.setSpeed();
 
-        stdoutToLCD();
-        clearLCD();
-        printf("%d%%", motor.getSpeed());
+        #if !TINKERCAD
+            stdoutToLCD();
+            clearLCD();
+            printf("%d%%", motor.getSpeed());
+        #else
+            lcd.clear();
+            lcd.print(motor.getSpeed());
+        #endif
     }
 
     #if !TINKERCAD
@@ -701,18 +719,19 @@ void loop(){
         inputBuffer = Serial.readStringUntil('\n');
 
         if (inputBuffer != ""){
-            stdoutToSerial();
-            printf("%s\n", inputBuffer.c_str());
+            Serial.println(inputBuffer);
 
             if(inputBuffer == "ON"){
                 relay.setState(true);
             }else if(inputBuffer == "OFF"){
                 relay.setState(false);
             }else{
-                if(getPercentage(inputBuffer) != -1){
-                    motor.setTargetSpeed(getPercentage(inputBuffer));
+                int percentage = getPercentage(inputBuffer);
+                if(percentage != -1){
+                    motor.setTargetSpeed(percentage);
                 }else if(inputBuffer.length() > 0){
-                    printf("\nInvalid input: %s", inputBuffer.c_str());
+                    Serial.print("\nInvalid input: ");
+                    Serial.println(inputBuffer);
                 }
             }
 

@@ -1,10 +1,16 @@
 #include <Arduino.h>
 
+#include "config.h"
+
 #include "Relay.h"
 #include "L298N.h"
-#include "SerialMap.h"
 
-#include "config.h"
+#if !TINKERCAD
+    #include "SerialMap.h"
+#else
+    #include "LCD.h"
+    LCD lcd = LCD(LCD_ADDR, LCD_COLS, LCD_ROWS);
+#endif
 
 Relay relay(RELAY_IN);
 L298N motor(MOTOR_IN1, MOTOR_IN2, MOTOR_EN);
@@ -35,21 +41,33 @@ int getPercentage(String input){
 }
 
 void setup(){
-    stdinToSerial();
-    redirectStdout();
+    #if !TINKERCAD
+        stdinToSerial();
+        redirectStdout();
 
-    stdoutToLCD();
-    clearLCD();
-    printf("%d%%", motor.getSpeed());
+        stdoutToLCD();
+        clearLCD();
+        printf("%d%%", motor.getSpeed());
+    #else
+        Serial.begin(SERIAL_BAUD);
+
+        lcd.begin();
+        lcd.print(motor.getSpeed());
+    #endif
 }
 
 void loop(){
     if(motor.getSpeed() != motor.getTargetSpeed()){
         motor.setSpeed();
 
-        stdoutToLCD();
-        clearLCD();
-        printf("%d%%", motor.getSpeed());
+        #if !TINKERCAD
+            stdoutToLCD();
+            clearLCD();
+            printf("%d%%", motor.getSpeed());
+        #else
+            lcd.clear();
+            lcd.print(motor.getSpeed());
+        #endif
     }
 
     #if !TINKERCAD
@@ -89,18 +107,19 @@ void loop(){
         inputBuffer = Serial.readStringUntil('\n');
 
         if (inputBuffer != ""){
-            stdoutToSerial();
-            printf("%s\n", inputBuffer.c_str());
+            Serial.println(inputBuffer);
 
             if(inputBuffer == "ON"){
                 relay.setState(true);
             }else if(inputBuffer == "OFF"){
                 relay.setState(false);
             }else{
-                if(getPercentage(inputBuffer) != -1){
-                    motor.setTargetSpeed(getPercentage(inputBuffer));
+                int percentage = getPercentage(inputBuffer);
+                if(percentage != -1){
+                    motor.setTargetSpeed(percentage);
                 }else if(inputBuffer.length() > 0){
-                    printf("\nInvalid input: %s", inputBuffer.c_str());
+                    Serial.print("\nInvalid input: ");
+                    Serial.println(inputBuffer);
                 }
             }
 
