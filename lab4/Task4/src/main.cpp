@@ -53,6 +53,7 @@ void setup(){
 
         lcd.begin();
         lcd.print(motor.getSpeed());
+        lcd.print("%");
     #endif
 }
 
@@ -67,6 +68,7 @@ void loop(){
         #else
             lcd.clear();
             lcd.print(motor.getSpeed());
+            lcd.print("%");
         #endif
     }
 
@@ -105,6 +107,10 @@ void loop(){
         }
     #else
         inputBuffer = Serial.readStringUntil('\n');
+
+        if(inputBuffer[inputBuffer.length() - 1] == 13){
+            inputBuffer.remove(inputBuffer.length() - 1);
+        }
 
         if (inputBuffer != ""){
             Serial.println(inputBuffer);
