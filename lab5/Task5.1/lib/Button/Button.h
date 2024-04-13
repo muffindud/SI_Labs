@@ -12,7 +12,6 @@ class Button{
 
     public:
         Button(int pin);
-        void setup();
 
         void scanButtonState();
         bool getButtonPressed();

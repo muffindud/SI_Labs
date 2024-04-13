@@ -1,17 +1,17 @@
 #ifndef NTC_THERMISTOR_H
 #define NTC_THERMISTOR_H
 
-#include <Arduino.h>
+#define BETA 3950
 
-#include "Convertor.h"
+#include <Arduino.h>
 
 class NTCThermistor{
     private:
         int pin;
     public:
         NTCThermistor(int pin);
-        void setup();
         int getReading();
+        int getCelsius();
 };
 
 #endif

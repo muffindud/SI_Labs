@@ -2,9 +2,6 @@
 
 Button::Button(int pin){
     buttonPin = pin;
-}
-
-void Button::setup(){
     pinMode(buttonPin, INPUT);
 }
 
@@ -12,7 +9,6 @@ void Button::scanButtonState(){
     lastButtonState = buttonState;
     buttonState = digitalRead(buttonPin);
     changedState = buttonState != lastButtonState;
-    delay(10);
     return;
 }
 

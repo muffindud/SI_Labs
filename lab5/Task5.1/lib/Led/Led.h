@@ -10,8 +10,6 @@ class Led{
     public:
         Led(int pin);
 
-        void setup();
-
         void setPowerState(bool state);
         bool getPowerState();
 
