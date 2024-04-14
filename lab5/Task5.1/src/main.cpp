@@ -34,7 +34,6 @@ int celsius = thermistor.getCelsius();
 int lastCelsius = celsius;
 
 void setup(){
-    Serial.begin(SERIAL_BAUD);
     lcd.begin();
 
     lcd.setCursor(0, 0);
