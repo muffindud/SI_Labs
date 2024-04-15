@@ -6,7 +6,7 @@
 
     #define SERIAL_BAUD 9600
 
-    #define RELAY_IN 4
+    #define RELAY_IN 8
 
     #define MOTOR_IN1 2
     #define MOTOR_IN2 3

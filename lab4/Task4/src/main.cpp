@@ -75,7 +75,7 @@ void loop(){
     #if !TINKERCAD
         char c = getchar();
 
-        if(c){
+        if(c != -1){
             stdoutToSerial();
 
             if(c == 13){
