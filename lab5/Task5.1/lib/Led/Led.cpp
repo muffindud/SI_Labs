@@ -11,6 +11,10 @@ void Led::setPowerState(bool state){
     digitalWrite(ledPin, powerState);
 }
 
+void Led::setPWM(int value){
+    analogWrite(ledPin, value);
+}
+
 bool Led::getPowerState(){
     return powerState;
 }

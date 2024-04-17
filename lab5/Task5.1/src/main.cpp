@@ -5,6 +5,7 @@
 #include "Button.h"
 #include "Led.h"
 #include "Relay.h"
+#include "Potentiometer.h"
 
 enum selector_t {
     HMIN,
@@ -21,6 +22,9 @@ Relay relay(RELAY_PIN);
 LCD lcd(LCD_ADDR, LCD_COLS, LCD_ROWS);
 
 NTCThermistor thermistor(THERMISTOR_PIN);
+
+Led openLoopLed(OPEN_LOOP_LED);
+Potentiometer openLoopPotentiometer(OPEN_LOOP_POTENTIOMETER);
 
 selector_t selector = HMIN;
 selector_t lastState = HMIN;
@@ -52,6 +56,8 @@ void setup(){
 }
 
 void loop(){
+    openLoopLed.setPWM(map(openLoopPotentiometer.getValue(), POTENTIOMETER_MIN_VALUE, POTENTIOMETER_MAX_VALUE, LED_MIN_PWM, LED_MAX_PWM));
+
     celsius = thermistor.getCelsius();
 
     if(celsius != lastCelsius){

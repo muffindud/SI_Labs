@@ -15,6 +15,9 @@
 
     #define THERMISTOR_PIN A0
 
+    #define OPEN_LOOP_LED 9
+    #define OPEN_LOOP_POTENTIOMETER A1
+
     #define DEFAULT_HMIN 20
     #define DEFAULT_HMAX 30
 

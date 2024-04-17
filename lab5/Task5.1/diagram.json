@@ -12,6 +12,14 @@
       "attrs": {}
     },
     {
+      "type": "wokwi-breadboard-mini",
+      "id": "bb2",
+      "top": 68.1,
+      "left": 608.3,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
       "type": "wokwi-arduino-uno",
       "id": "uno",
       "top": -12.6,
@@ -90,25 +98,47 @@
       "left": 489.6,
       "attrs": { "value": "1000" }
     },
-    { "type": "wokwi-relay-module", "id": "relay1", "top": -172.6, "left": 508.8, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay1", "top": -172.6, "left": 422.4, "attrs": {} },
     {
       "type": "wokwi-led",
       "id": "led2",
       "top": -214.8,
-      "left": 666.6,
+      "left": 580.2,
       "attrs": { "color": "red", "flip": "1" }
     },
-    { "type": "wokwi-vcc", "id": "vcc1", "top": -239.24, "left": 652.8, "attrs": {} },
-    { "type": "wokwi-gnd", "id": "gnd1", "top": -229, "left": 710.2, "rotate": 180, "attrs": {} }
+    { "type": "wokwi-vcc", "id": "vcc1", "top": -239.24, "left": 566.4, "attrs": {} },
+    { "type": "wokwi-gnd", "id": "gnd1", "top": -229, "left": 623.8, "rotate": 180, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 37.2,
+      "left": 745.8,
+      "rotate": 90,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r5",
+      "top": 61.55,
+      "left": 662.4,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-slide-potentiometer",
+      "id": "pot1",
+      "top": 225.8,
+      "left": 594.2,
+      "attrs": { "travelLength": "64" }
+    }
   ],
   "connections": [
     [ "bb1:27b.j", "uno:2", "green", [ "h-57.6", "v19.2" ] ],
     [ "bb1:21b.j", "uno:3", "green", [ "h-67.2", "v67.2" ] ],
     [ "bb1:bn.2", "bb1:3t.e", "black", [ "h0" ] ],
     [ "bb1:bp.1", "bb1:2t.e", "red", [ "v0" ] ],
-    [ "bb1:1t.e", "uno:A0", "green", [ "v0", "h-393.6", "v240" ] ],
-    [ "lcd1:SDA", "uno:A4", "green", [ "h-57.6", "v-115" ] ],
-    [ "lcd1:SCL", "uno:A5", "green", [ "h-67.2", "v-105.3" ] ],
+    [ "bb1:1t.e", "uno:A0", "green", [ "h-403.2", "v226.6" ] ],
+    [ "lcd1:SDA", "uno:A4", "green", [ "h-67.2", "v-109.6" ] ],
+    [ "lcd1:SCL", "uno:A5", "green", [ "h-76.8", "v-109.6" ] ],
     [ "bb1:bp.25", "bb1:tp.25", "red", [ "h0.9", "v30.4", "h172.8" ] ],
     [ "bb1:bn.25", "bb1:tn.25", "black", [ "h1.3", "v40", "h172.8" ] ],
     [ "lcd1:GND", "bb1:bn.24", "black", [ "h-9.6", "v-38.4", "h211.2", "v-48" ] ],
@@ -123,13 +153,19 @@
     [ "bb1:11t.a", "bb1:tp.9", "red", [ "h0" ] ],
     [ "bb1:23t.a", "bb1:tp.19", "red", [ "h0" ] ],
     [ "bb1:29t.a", "bb1:tp.24", "red", [ "h0" ] ],
-    [ "bb1:bn.1", "uno:GND.2", "black", [ "v1.6", "h-296.3", "v182.4" ] ],
+    [ "bb1:bn.1", "uno:GND.2", "black", [ "v1.6", "h-286.7", "v178.5" ] ],
     [ "uno:5V", "bb1:bp.3", "red", [ "h-19.1", "v-159.4" ] ],
     [ "relay1:GND", "bb1:bn.6", "black", [ "h0" ] ],
     [ "relay1:VCC", "bb1:bp.6", "red", [ "h0" ] ],
     [ "led2:A", "relay1:NO", "red", [ "v0" ] ],
     [ "led2:C", "gnd1:GND", "black", [ "v38.4", "h28.4" ] ],
     [ "vcc1:VCC", "relay1:COM", "red", [ "v67.2" ] ],
+    [ "relay1:IN", "uno:7", "green", [ "h-105.6", "v274.6" ] ],
+    [ "bb2:1t.e", "bb2:1b.f", "black", [ "v0" ] ],
+    [ "bb2:1b.j", "bb1:tn.11", "black", [ "v0" ] ],
+    [ "pot1:GND", "bb1:tn.21", "black", [ "v-38.4", "h-324.92", "v-59.2" ] ],
+    [ "pot1:VCC", "bb1:tp.22", "red", [ "h0", "v-96" ] ],
+    [ "uno:A1", "pot1:SIG", "green", [ "h-19.1", "v234.3", "h499.2" ] ],
     [ "ntc1:GND", "bb1:3t.a", "", [ "$bb" ] ],
     [ "ntc1:VCC", "bb1:2t.a", "", [ "$bb" ] ],
     [ "ntc1:OUT", "bb1:1t.a", "", [ "$bb" ] ],
@@ -157,7 +193,11 @@
     [ "r3:2", "bb1:tn.18", "", [ "$bb" ] ],
     [ "r4:1", "bb1:28t.d", "", [ "$bb" ] ],
     [ "r4:2", "bb1:tn.23", "", [ "$bb" ] ],
-    [ "relay1:IN", "uno:7", "green", [ "h-192", "v278.2" ] ]
+    [ "led1:A", "bb2:2t.a", "", [ "$bb" ] ],
+    [ "led1:C", "bb2:1t.a", "", [ "$bb" ] ],
+    [ "r5:1", "bb2:2b.h", "", [ "$bb" ] ],
+    [ "r5:2", "bb2:2t.d", "", [ "$bb" ] ],
+    [ "uno:9", "bb2:2b.j", "green", [ "h9.6", "v-8.8", "h316.8", "v-38.4" ] ]
   ],
   "dependencies": {}
 }
