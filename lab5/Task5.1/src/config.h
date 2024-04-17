@@ -11,7 +11,7 @@
     #define X10_BUTTON 3
     #define SWITCH_BUTTON 2
 
-    #define INDICATOR_LED 7
+    #define RELAY_PIN 7
 
     #define THERMISTOR_PIN A0
 

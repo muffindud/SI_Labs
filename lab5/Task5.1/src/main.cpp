@@ -4,6 +4,7 @@
 #include "NTCThermistor.h"
 #include "Button.h"
 #include "Led.h"
+#include "Relay.h"
 
 enum selector_t {
     HMIN,
@@ -15,7 +16,7 @@ Button minusButton(MINUS_BUTTON);
 Button x10Button(X10_BUTTON);
 Button switchButton(SWITCH_BUTTON);
 
-Led indicatorLed(INDICATOR_LED);
+Relay relay(RELAY_PIN);
 
 LCD lcd(LCD_ADDR, LCD_COLS, LCD_ROWS);
 
@@ -62,12 +63,12 @@ void loop(){
     }
 
     if(celsius > hMin && celsius < hMax){
-        indicatorLed.setPowerState(lastState == HMIN);
+        relay.setState(lastState == HMIN);
     }else if(celsius <= hMin){
-        indicatorLed.setPowerState(true);
+        relay.setState(true);
         lastState = HMIN;
     }else if(celsius >= hMax){
-        indicatorLed.setPowerState(false);
+        relay.setState(false);
         lastState = HMAX;
     }
 
