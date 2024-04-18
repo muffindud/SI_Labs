@@ -3,15 +3,11 @@
 // src/config.h
 #define SERIAL_BAUD 9600
 
-#define LCD_ADDR 0x27
-#define LCD_COLS 16
-#define LCD_ROWS 2
+#define ENCODER_A 2
+#define ENCODER_B 3
 
-#define ENCODER_A 6
-#define ENCODER_B 7
-
-#define MOTOR_ENA 3
-#define MOTOR_IN1 4
+#define MOTOR_ENA 7
+#define MOTOR_IN1 6
 #define MOTOR_IN2 5
 #define SPEED_STEP 1
 
@@ -155,6 +151,9 @@ void redirectSTDIN(){
 L298N motor(MOTOR_ENA, MOTOR_IN1, MOTOR_IN2);
 Encoder encoder(ENCODER_A, ENCODER_B);
 
+unsigned long startTime = 0;
+unsigned long endTime = 0;
+
 void setup(){
     #if TINKERCAD
         Serial.begin(SERIAL_BAUD);
@@ -162,15 +161,26 @@ void setup(){
         redirectSTDOUT();
         redirectSTDIN();
     #endif
+
+    motor.setTargetSpeed(100);
+    startTime = millis();
 }
 
 void loop(){
     motor.setSpeed();
+    int encoderValue = encoder.read() * 6;
 
-    #if TINKERCAD
-        Serial.print("Speed: ");
-        Serial.println(motor.getSpeed());
-    #else
-        printf("Speed: %d\n", motor.getSpeed());
-    #endif
+    endTime = millis();
+    if(endTime - startTime >= 1000){
+        #if TINKERCAD
+            Serial.print("Speed: ");
+            Serial.println(encoderValue);
+        #else
+            printf("Speed: %d\n", encoderValue);
+        #endif
+
+        startTime = endTime;
+    }
+
+    encoder.write(0);
 }
