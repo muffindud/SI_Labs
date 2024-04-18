@@ -1,19 +1,33 @@
 #include <Arduino.h>
 #include <Encoder.h>
-#include <LiquidCrystal_I2C.h>
 
 #include "L298N.h"
 
 #include "config.h"
 
-LiquidCrystal_I2C lcd(LCD_ADDR, LCD_COLS, LCD_ROWS);
+#if !TINKERCAD
+    #include "SerialMap.h"
+#endif
+
 L298N motor(MOTOR_ENA, MOTOR_IN1, MOTOR_IN2);
 Encoder encoder(ENCODER_A, ENCODER_B);
 
 void setup(){
-    lcd.begin(LCD_COLS, LCD_ROWS);
+    #if TINKERCAD
+        Serial.begin(SERIAL_BAUD);
+    #else
+        redirectSTDOUT();
+        redirectSTDIN();
+    #endif
 }
 
 void loop(){
+    motor.setSpeed();
 
+    #if TINKERCAD
+        Serial.print("Speed: ");
+        Serial.println(motor.getSpeed());
+    #else
+        printf("Speed: %d\n", motor.getSpeed());
+    #endif
 }
