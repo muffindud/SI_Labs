@@ -28,6 +28,12 @@ class L298N{
             range: -100 to 100
         */
         int analogMap(int speed);
+
+        /*
+            Apply the speed to the motor.
+            Call on each loop iteration.
+        */
+        void applySpeed();
     public:
         L298N(int in1, int in2, int en);
 
@@ -42,12 +48,6 @@ class L298N{
             Call on each loop iteration.
         */
         void setSpeed();
-
-        /*
-            Apply the speed to the motor.
-            Call on each loop iteration.
-        */
-        void applySpeed();
 
         /*
             Get the speed of the motor in %.
