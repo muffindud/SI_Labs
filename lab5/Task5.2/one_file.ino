@@ -11,6 +11,8 @@
 #define MOTOR_IN2 5
 #define SPEED_STEP 1
 
+#define DC_416_RPM_FACTOR 15
+
 #define TINKERCAD 1
 
 // lib/L298N/L298N.h
@@ -168,19 +170,16 @@ void setup(){
 
 void loop(){
     motor.setSpeed();
-    int encoderValue = encoder.read() * 6;
-
     endTime = millis();
+
     if(endTime - startTime >= 1000){
-        #if TINKERCAD
-            Serial.print("Speed: ");
-            Serial.println(encoderValue);
-        #else
-            printf("Speed: %d\n", encoderValue);
-        #endif
+        int32_t encoderValue = encoder.read();
+        // Per second operations
+
+        Serial.println(encoderValue/DC_416_RPM_FACTOR);
 
         startTime = endTime;
+        encoder.write(0);
     }
 
-    encoder.write(0);
 }
