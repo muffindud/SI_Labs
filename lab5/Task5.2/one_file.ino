@@ -11,6 +11,8 @@
 #define MOTOR_IN2 5
 #define SPEED_STEP 1
 
+#define MAX_SPEED_PER_SECOND 5364
+
 #define DC_416_RPM_FACTOR 15
 
 #define TINKERCAD 1
@@ -97,6 +99,159 @@ int L298N::getTargetSpeed(){
     return this->targetSpeed;
 }
 
+// lib/PIDController/PIDController.h
+#define TOLERANCE 10
+#define CALIBRATION_PERIOD_MS 1000
+#define MEASURE_HISTORY_SIZE 10
+#define VARIATION_MIN_TOLERANCE 10
+#define VARIATION_MAX_TOLERANCE 20
+
+enum comparison{
+    EQUAL,
+    GREATER,
+    LESS
+};
+
+class PIDController {
+    private:
+        Encoder encoder;
+        L298N motor;
+
+        int vHistory[MEASURE_HISTORY_SIZE];
+
+        float kp = 0.5;
+        float kpStep = 0.25;
+        bool kpCalibrated = false;
+        void calibrateKp();
+
+        float ki = 0.5;
+        float kiStep = 0.25;
+        bool kiCalibrated = false;
+        void calibrateKi();
+
+        float kd = 0.5;
+        float kdStep = 0.25;
+        bool kdCalibrated = false;
+        void calibrateKd();
+
+        int vDesired = 0;
+
+        bool historyFilled = false;
+        void pushToHistory(int v);
+        void emptyHistory();
+        int getHistoryVariation();
+    public:
+        PIDController(Encoder encoder, L298N motor);
+        void update();
+        void setDesiredSpeed(int speed);
+        float getKp();
+};
+
+// lib/PIDController/PIDController.cpp
+PIDController::PIDController(Encoder encoder, L298N motor): encoder(encoder), motor(motor){
+    emptyHistory();
+}
+
+void PIDController::pushToHistory(int v){
+    for(int i = 0; i < MEASURE_HISTORY_SIZE - 1; i++){
+        vHistory[i] = vHistory[i + 1];
+    }
+
+    vHistory[MEASURE_HISTORY_SIZE - 1] = v;
+
+    historyFilled = vHistory[0] != -1;
+}
+
+void PIDController::emptyHistory(){
+    for(int i = 0; i < MEASURE_HISTORY_SIZE; i++){
+        vHistory[i] = -1;
+    }
+
+    historyFilled = false;
+}
+
+int PIDController::getHistoryVariation(){
+    int variation = 0;
+
+    for(int i = 0; i < MEASURE_HISTORY_SIZE - 1; i++){
+        variation += abs(vHistory[i] - vHistory[i + 1]);
+    }
+
+    return variation;
+}
+
+void PIDController::calibrateKp(){
+    int variation = getHistoryVariation();
+
+    if(variation < VARIATION_MIN_TOLERANCE){
+        kp += kpStep;
+        kpStep /= 2;
+        motor.setTargetSpeed(map(vDesired * kp, 0, MAX_SPEED_PER_SECOND, 0, 255));
+    }else if(variation > VARIATION_MAX_TOLERANCE){
+        kp -= kpStep;
+        kpStep /= 2;
+        motor.setTargetSpeed(map(vDesired * kp, 0, MAX_SPEED_PER_SECOND, 0, 255));
+    }
+    else{
+        kpCalibrated = true;
+    }
+}
+
+void PIDController::calibrateKi(){
+    
+}
+
+void PIDController::calibrateKd(){
+    
+}
+
+void PIDController::update(){
+    motor.setSpeed();
+    int v = encoder.read();
+
+    pushToHistory(v);
+    
+
+    if(!historyFilled){
+        return;
+    }
+
+    if(!kpCalibrated){
+        calibrateKp();
+    }
+
+    delay(CALIBRATION_PERIOD_MS);
+}
+
+void PIDController::setDesiredSpeed(int speed){
+    vDesired = speed;
+
+    kpCalibrated = false;
+    kpStep = 0.25;
+
+    kiCalibrated = false;
+    kiStep = 0.25;
+
+    kdCalibrated = false;
+    kdStep = 0.25;
+}
+
+float PIDController::getKp(){
+    return kp;
+}
+
+comparison closeCompare(int a, int b, int tolerance){
+    if(abs(a - b) <= tolerance){
+        return EQUAL;
+    }else if(a > b){
+        return GREATER;
+    }else if(a < b){
+        return LESS;
+    }
+
+    return EQUAL;
+}
+
 // lib/SerialMap/SerialMap.cpp
 #if !TINKERCAD
 #include <stdio.h>
@@ -153,33 +308,13 @@ void redirectSTDIN(){
 L298N motor(MOTOR_ENA, MOTOR_IN1, MOTOR_IN2);
 Encoder encoder(ENCODER_A, ENCODER_B);
 
-unsigned long startTime = 0;
-unsigned long endTime = 0;
+PIDController pid(encoder, motor);
 
 void setup(){
-    #if TINKERCAD
-        Serial.begin(SERIAL_BAUD);
-    #else
-        redirectSTDOUT();
-        redirectSTDIN();
-    #endif
-
-    motor.setTargetSpeed(100);
-    startTime = millis();
+    Serial.begin(SERIAL_BAUD);
 }
 
 void loop(){
-    motor.setSpeed();
-    endTime = millis();
-
-    if(endTime - startTime >= 1000){
-        int32_t encoderValue = encoder.read();
-        // Per second operations
-
-        Serial.println(encoderValue/DC_416_RPM_FACTOR);
-
-        startTime = endTime;
-        encoder.write(0);
-    }
-
+    pid.setDesiredSpeed(3600);
+    pid.update();
 }

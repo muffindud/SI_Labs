@@ -2,6 +2,7 @@
 #include <Encoder.h>
 
 #include "L298N.h"
+#include "PIDController.h"
 
 #include "config.h"
 
@@ -12,22 +13,13 @@
 L298N motor(MOTOR_ENA, MOTOR_IN1, MOTOR_IN2);
 Encoder encoder(ENCODER_A, ENCODER_B);
 
+PIDController pid(encoder, motor);
+
 void setup(){
-    #if TINKERCAD
-        Serial.begin(SERIAL_BAUD);
-    #else
-        redirectSTDOUT();
-        redirectSTDIN();
-    #endif
+    Serial.begin(SERIAL_BAUD);
 }
 
 void loop(){
-    motor.setSpeed();
-
-    #if TINKERCAD
-        Serial.print("Speed: ");
-        Serial.println(motor.getSpeed());
-    #else
-        printf("Speed: %d\n", motor.getSpeed());
-    #endif
+    pid.setDesiredSpeed(3600);
+    pid.update();
 }

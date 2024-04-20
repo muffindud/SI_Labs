@@ -10,7 +10,7 @@
     #define MOTOR_IN1 6
     #define MOTOR_IN2 5
 
-    #define DC_416_RPM_FACTOR 15
+    #define MAX_SPEED_PER_SECOND 5364
 
     #define TINKERCAD 0
 
