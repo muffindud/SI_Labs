@@ -11,22 +11,20 @@
 #define MOTOR_IN2 5
 #define SPEED_STEP 10
 
-#define MAX_SPEED_PER_SECOND 5364
+#define MAX_SPEED_PER_SECOND 5400
+#define PERIOD_UPDATE_MS 1000
 
 // lib/L298N/L298N.h
 class L298N{
-    private:
+    public:
         int in1;
         int in2;
         int en;
         int speed = 0;
         int targetSpeed = 0;
-        int analogMap(int speed);
-    public:
+
         L298N(int in1, int in2, int en);
         void setSpeed(int speed);
-        int getSpeed();
-        int getTargetSpeed();
 };
 
 // lib/L298N/L298N.cpp
@@ -42,15 +40,15 @@ L298N::L298N(int in1, int in2, int en){
 }
 
 void L298N::setSpeed(int speed){
-    if(speed > 100){
-        this->targetSpeed = 100;
-    }else if(speed < -100){
-        this->targetSpeed = -100;
+    if(speed > 255){
+        this->targetSpeed = 255;
+    }else if(speed < -255){
+        this->targetSpeed = -255;
     }else{
         this->targetSpeed = speed;
     }
 
-    while(true){
+    while(this->speed != this->targetSpeed){
         if(this->targetSpeed > this->speed){
             if(this->speed + SPEED_STEP > this->targetSpeed){
                 this->speed = this->targetSpeed;
@@ -70,180 +68,72 @@ void L298N::setSpeed(int speed){
             digitalWrite(this->in1, LOW);
             digitalWrite(this->in2, LOW);
         }else if(this->speed > 0){
-            analogWrite(this->en, this->analogMap(this->speed));
+            analogWrite(this->en, abs(this->speed));
             digitalWrite(this->in1, HIGH);
             digitalWrite(this->in2, LOW);
         }else if(this->speed < 0){
-            analogWrite(this->en, this->analogMap(this->speed));
+            analogWrite(this->en, abs(this->speed));
             digitalWrite(this->in1, LOW);
             digitalWrite(this->in2, HIGH);
         }
+
+        delay(100);
     }
-}
-
-int L298N::getSpeed(){
-    return this->speed;
-}
-
-int L298N::analogMap(int speed){
-    speed = abs(speed);
-
-    return (int)map(speed, 0, 100, 0, 255);
-}
-
-int L298N::getTargetSpeed(){
-    return this->targetSpeed;
 }
 
 // lib/PIDController/PIDController.h
-#define TOLERANCE 10
-#define CALIBRATION_PERIOD_MS 1000
-#define MEASURE_HISTORY_SIZE 10
-#define VARIATION_MIN_TOLERANCE 10
-#define VARIATION_MAX_TOLERANCE 20
-
-enum comparison{
-    EQUAL,
-    GREATER,
-    LESS
-};
-
 class PIDController {
-    private:
-        Encoder encoder;
-        L298N motor;
+    public:
+        Encoder *encoder;
+        L298N *motor;
 
         int vDesired = 0;
 
-        int vHistory[MEASURE_HISTORY_SIZE];
-        bool historyFilled = false;
-        void pushToHistory(int v);
-        void emptyHistory();
-        int getHistoryVariation();
 
-        float kp = 0;
-        bool kpCalibrated = false;
-        void calibrateKp();
-
+        float kp = 0.3;
         float ki = 0;
-        bool kiCalibrated = false;
-        void calibrateKi();
-
         float kd = 0;
-        bool kdCalibrated = false;
-        void calibrateKd();
+
+        int encoderValue = 0;
+    
     public:
-        int encoderValue;
-        PIDController(Encoder encoder, L298N motor);
+        PIDController(Encoder *encoder, L298N *motor);
         void update();
         void setDesiredSpeed(int speed);
-        float getKp();
+        int getEncoderValue();
 };
 
-comparison closeCompare(int a, int b, int tolerance);
-
 // lib/PIDController/PIDController.cpp
-PIDController::PIDController(Encoder encoder, L298N motor): encoder(encoder), motor(motor){
-    emptyHistory();
-}
-
-void PIDController::pushToHistory(int v){
-    for(int i = 0; i < MEASURE_HISTORY_SIZE - 1; i++){
-        vHistory[i] = vHistory[i + 1];
-    }
-
-    vHistory[MEASURE_HISTORY_SIZE - 1] = v;
-
-    historyFilled = vHistory[0] != -1;
-}
-
-void PIDController::emptyHistory(){
-    for(int i = 0; i < MEASURE_HISTORY_SIZE; i++){
-        vHistory[i] = -1;
-    }
-
-    historyFilled = false;
-}
-
-int PIDController::getHistoryVariation(){
-    int variation = 0;
-
-    for(int i = 0; i < MEASURE_HISTORY_SIZE - 1; i++){
-        variation += abs(vHistory[i] - vHistory[i + 1]);
-    }
-
-    return variation;
-}
-
-void PIDController::calibrateKp(){
-    int variation = getHistoryVariation();
-
-    if(variation < VARIATION_MIN_TOLERANCE){
-        
-    }else if(variation > VARIATION_MAX_TOLERANCE){
-        
-    }
-    else{
-        kpCalibrated = true;
-    }
-}
-
-void PIDController::calibrateKi(){
-    
-}
-
-void PIDController::calibrateKd(){
-    
-}
+PIDController::PIDController(Encoder *encoder, L298N *motor): encoder(encoder), motor(motor){}
 
 void PIDController::update(){
-    int v = encoder.read();
-    encoderValue = v;
+    int err = vDesired - encoderValue;
+    motor->setSpeed(map(err * kp, 0, MAX_SPEED_PER_SECOND, 0, 255));
 
-    pushToHistory(v);
-
-    // if(!kpCalibrated && historyFilled){
-    //     calibrateKp();
-    // }
-
-    encoder.write(0);
-    delay(CALIBRATION_PERIOD_MS);
+    encoder->write(0);
+    delay(PERIOD_UPDATE_MS);
+    encoderValue = encoder->read();
 }
 
 void PIDController::setDesiredSpeed(int speed){
-    vDesired = speed;
-
-    kpCalibrated = false;
-    kiCalibrated = false;
-    kdCalibrated = false;
+    this->vDesired = speed;
 }
 
-float PIDController::getKp(){
-    return kp;
-}
-
-comparison closeCompare(int a, int b, int tolerance){
-    if(abs(a - b) <= tolerance){
-        return EQUAL;
-    }else if(a > b){
-        return GREATER;
-    }else if(a < b){
-        return LESS;
-    }
-
-    return EQUAL;
+int PIDController::getEncoderValue(){
+    return encoderValue;
 }
 
 // src/main.cpp
 L298N motor(MOTOR_ENA, MOTOR_IN1, MOTOR_IN2);
 Encoder encoder(ENCODER_A, ENCODER_B);
-
-PIDController pid(encoder, motor);
+PIDController pid(&encoder, &motor);
 
 void setup(){
     Serial.begin(SERIAL_BAUD);
-    motor.setSpeed(50);
+    pid.setDesiredSpeed(4200);
 }
 
 void loop(){
+    pid.update();
+    Serial.println(pid.encoderValue);
 }
