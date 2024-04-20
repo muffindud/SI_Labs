@@ -12,10 +12,10 @@ L298N::L298N(int in1, int in2, int en){
 }
 
 void L298N::setSpeed(int speed){
-    if(speed > 100){
-        this->targetSpeed = 100;
-    }else if(speed < -100){
-        this->targetSpeed = -100;
+    if(speed > 255){
+        this->targetSpeed = 255;
+    }else if(speed < -255){
+        this->targetSpeed = -255;
     }else{
         this->targetSpeed = speed;
     }
@@ -40,11 +40,11 @@ void L298N::setSpeed(int speed){
             digitalWrite(this->in1, LOW);
             digitalWrite(this->in2, LOW);
         }else if(this->speed > 0){
-            analogWrite(this->en, this->analogMap(this->speed));
+            analogWrite(this->en, abs(this->speed));
             digitalWrite(this->in1, HIGH);
             digitalWrite(this->in2, LOW);
         }else if(this->speed < 0){
-            analogWrite(this->en, this->analogMap(this->speed));
+            analogWrite(this->en, abs(this->speed));
             digitalWrite(this->in1, LOW);
             digitalWrite(this->in2, HIGH);
         }
@@ -53,12 +53,6 @@ void L298N::setSpeed(int speed){
 
 int L298N::getSpeed(){
     return this->speed;
-}
-
-int L298N::analogMap(int speed){
-    speed = abs(speed);
-
-    return (int)map(speed, 0, 100, 0, 255);
 }
 
 int L298N::getTargetSpeed(){
