@@ -11,53 +11,28 @@ class L298N{
         int in2;
         int en;
 
-        /*
-            Speed of the motor in %.
-            range: -100 to 100
-        */
         int speed = 0;
-
-        /*
-            Target speed of the motor in %.
-            range: -100 to 100
-        */
         int targetSpeed = 0;
 
-        /*
-            Map the speed to the analogWrite range.
-            range: -100 to 100
-        */
         int analogMap(int speed);
-
-        /*
-            Apply the speed to the motor.
-            Call on each loop iteration.
-        */
-        void applySpeed();
     public:
         L298N(int in1, int in2, int en);
 
         /*
-            Set the target speed of the motor in %.
-            range: -100 to 100
+            * Set the target speed of the motor in %.
+            * @param speed: speed in % [-100; 100].
         */
-        void setTargetSpeed(int speed);
-
-        /*
-            Set the speed of the motor to the target speed.
-            Call on each loop iteration.
-        */
-        void setSpeed();
+        void setSpeed(int speed);
 
         /*
             Get the speed of the motor in %.
-            range: -100 to 100
+            @ return: speed in % [-100; 100].
         */
         int getSpeed();
 
         /*
             Get the target speed of the motor in %.
-            range: -100 to 100
+            @ return: target speed in % [-100; 100].
         */
         int getTargetSpeed();
 };
