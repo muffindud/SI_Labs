@@ -36,13 +36,9 @@ void PIDController::calibrateKp(){
     int variation = getHistoryVariation();
 
     if(variation < VARIATION_MIN_TOLERANCE){
-        kp += kpStep;
-        kpStep /= 2;
-        motor.setTargetSpeed(map(vDesired * kp, 0, MAX_SPEED_PER_SECOND, 0, 255));
+        
     }else if(variation > VARIATION_MAX_TOLERANCE){
-        kp -= kpStep;
-        kpStep /= 2;
-        motor.setTargetSpeed(map(vDesired * kp, 0, MAX_SPEED_PER_SECOND, 0, 255));
+        
     }
     else{
         kpCalibrated = true;
@@ -58,20 +54,16 @@ void PIDController::calibrateKd(){
 }
 
 void PIDController::update(){
-    motor.setSpeed();
     int v = encoder.read();
+    encoderValue = v;
 
     pushToHistory(v);
-    
 
-    if(!historyFilled){
-        return;
-    }
-
-    if(!kpCalibrated){
+    if(!kpCalibrated && historyFilled){
         calibrateKp();
     }
 
+    encoder.write(0);
     delay(CALIBRATION_PERIOD_MS);
 }
 
@@ -79,13 +71,8 @@ void PIDController::setDesiredSpeed(int speed){
     vDesired = speed;
 
     kpCalibrated = false;
-    kpStep = 0.25;
-
     kiCalibrated = false;
-    kiStep = 0.25;
-
     kdCalibrated = false;
-    kdStep = 0.25;
 }
 
 float PIDController::getKp(){

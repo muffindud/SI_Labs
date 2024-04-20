@@ -29,30 +29,28 @@ class PIDController {
         Encoder encoder;
         L298N motor;
 
-        int vHistory[MEASURE_HISTORY_SIZE];
-
-        float kp = 0.5;
-        float kpStep = 0.25;
-        bool kpCalibrated = false;
-        void calibrateKp();
-
-        float ki = 0.5;
-        float kiStep = 0.25;
-        bool kiCalibrated = false;
-        void calibrateKi();
-
-        float kd = 0.5;
-        float kdStep = 0.25;
-        bool kdCalibrated = false;
-        void calibrateKd();
-
         int vDesired = 0;
 
+        int vHistory[MEASURE_HISTORY_SIZE];
         bool historyFilled = false;
         void pushToHistory(int v);
         void emptyHistory();
         int getHistoryVariation();
+
+        float kp = 0;
+        bool kpCalibrated = false;
+        void calibrateKp();
+
+        float ki = 0;
+        bool kiCalibrated = false;
+        void calibrateKi();
+
+        float kd = 0;
+        bool kdCalibrated = false;
+        void calibrateKd();
     public:
+        int encoderValue;
+
         /*
             * Constructor
             * @param encoder: encoder object
