@@ -6,7 +6,7 @@
     #define ENCODER_A 2
     #define ENCODER_B 3
 
-    #define MOTOR_ENA 7
+    #define MOTOR_ENA 9
     #define MOTOR_IN1 6
     #define MOTOR_IN2 5
 
