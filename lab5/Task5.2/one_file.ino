@@ -88,14 +88,11 @@ class PIDController {
         L298N *motor;
 
         int vDesired = 0;
-
-
-        float kp = 0.3;
-        float ki = 0;
-        float kd = 0;
-
         int encoderValue = 0;
-    
+
+        float kp = 0.015;
+        float ki = 0.02;
+        float kd = 0.07;
     public:
         PIDController(Encoder *encoder, L298N *motor);
         void update();
@@ -108,7 +105,9 @@ PIDController::PIDController(Encoder *encoder, L298N *motor): encoder(encoder), 
 
 void PIDController::update(){
     int err = vDesired - encoderValue;
-    motor->setSpeed(map(err * kp, 0, MAX_SPEED_PER_SECOND, 0, 255));
+    int targetSpeed = kp * err;
+
+    motor->setSpeed(constrain(targetSpeed, 1, 255));
 
     encoder->write(0);
     delay(PERIOD_UPDATE_MS);
@@ -130,7 +129,7 @@ PIDController pid(&encoder, &motor);
 
 void setup(){
     Serial.begin(SERIAL_BAUD);
-    pid.setDesiredSpeed(4200);
+    pid.setDesiredSpeed(2700);
 }
 
 void loop(){
