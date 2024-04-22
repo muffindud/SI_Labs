@@ -14,7 +14,7 @@
 #define SERIAL_BAUD 9600
 
 #define KP 0.01
-#define KI 0.0
+#define KI 0.01
 #define KD 0.005
 
 #include <Encoder.h>
@@ -69,6 +69,6 @@ void setup(){
 }
 
 void loop(){
-    applyPID(2700);
+    applyPID(4500);
     Serial.println(encoder.read());
 }
