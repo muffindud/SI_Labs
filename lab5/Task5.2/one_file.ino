@@ -15,7 +15,7 @@
 
 #define KP 0.01
 #define KI 0.0
-#define KD 0.0
+#define KD 0.005
 
 #include <Encoder.h>
 
