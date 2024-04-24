@@ -21,6 +21,9 @@ const int BIN_5_PIN = PB6;
 const int BIN_6_PIN = PB7;
 const int BIN_7_PIN = PB8;
 
+const int BUTTON_0_PIN = PB15;
+const int BUTTON_1_PIN = PA8;
+
 #else
 const int GREEN_1_PIN = 2;
 const int YELLOW_1_PIN = 3;
@@ -36,6 +39,9 @@ const int BIN_4_PIN = 12;
 const int BIN_5_PIN = A0;
 const int BIN_6_PIN = A1;
 const int BIN_7_PIN = A2;
+
+const int BUTTON_0_PIN = A3;
+const int BUTTON_1_PIN = A4;
 #endif
 
 #endif
