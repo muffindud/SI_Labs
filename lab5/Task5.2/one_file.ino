@@ -17,6 +17,8 @@
 #define KI 0.01
 #define KD 0.005
 
+#define MOTOR_TPRPM 15
+
 #include <Encoder.h>
 
 Encoder encoder(ENC_A_PIN, ENC_B_PIN);
@@ -41,9 +43,10 @@ void setPWM(int pwm){
     }
 }
 
-void applyPID(int targetTPS, bool printReslts = false){
-    static int lastError = 0;
-    static int integral = 0;
+int lastError = 0;
+int integral = 0;
+void applyPID(int targetRPM, bool printReslts = false){
+  	int targetTPS = targetRPM * MOTOR_TPRPM;
 
     int ticks = encoder.read();
     int error = targetTPS - ticks;
@@ -58,6 +61,9 @@ void applyPID(int targetTPS, bool printReslts = false){
         
         Serial.print("Ticks: ");
         Serial.println(ticks);
+
+        Serial.print("RPM: ");
+        Serial.println((int)(ticks / MOTOR_TPRPM));
         
         Serial.print(" P: ");
         Serial.print(error);
@@ -82,8 +88,6 @@ void applyPID(int targetTPS, bool printReslts = false){
         
         Serial.print(" PWM: ");
         Serial.println(pwm);
-    }else{
-        Serial.println(ticks);
     }
 
     setPWM(pwm);
@@ -102,7 +106,19 @@ void setup(){
     encoder.write(0);
 }
 
+int targetRPM = 255;
+
 void loop(){
-    applyPID(4500, true);
-    // Serial.println(encoder.read());
+    applyPID(targetRPM, true);
+    
+    // String input = Serial.readStringUntil('\n');
+    // if(input[input.length() - 1] == 13){
+    //     input.remove(input.length() - 1);
+    // }
+
+    // if(input != ""){
+    //     targetRPM = input.toInt();
+    //     integral = 0;
+    //     lastError = 0;
+    // }
 }
