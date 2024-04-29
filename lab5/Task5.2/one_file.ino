@@ -41,7 +41,7 @@ void setPWM(int pwm){
     }
 }
 
-void applyPID(int targetTPS){
+void applyPID(int targetTPS, bool printReslts = false){
     static int lastError = 0;
     static int integral = 0;
 
@@ -52,6 +52,40 @@ void applyPID(int targetTPS){
     int derivative = error - lastError;
 
     int pwm = KP * error + KI * integral + KD * derivative;
+
+    if(printReslts){
+        Serial.println("==================================");
+        
+        Serial.print("Ticks: ");
+        Serial.println(ticks);
+        
+        Serial.print(" P: ");
+        Serial.print(error);
+        Serial.print(" * ");
+        Serial.print(KP);
+        Serial.print(" = ");
+        Serial.println(error * KP);
+        
+        Serial.print(" I: ");
+        Serial.print(integral);
+        Serial.print(" * ");
+        Serial.print(KI);
+        Serial.print(" = ");
+        Serial.println(integral * KI);
+        
+        Serial.print(" D: ");
+        Serial.print(derivative);
+        Serial.print(" * ");
+        Serial.print(KD, 3);
+        Serial.print(" = ");
+        Serial.println(derivative * KD);
+        
+        Serial.print(" PWM: ");
+        Serial.println(pwm);
+    }else{
+        Serial.println(ticks);
+    }
+
     setPWM(pwm);
 
     lastError = error;
@@ -69,6 +103,6 @@ void setup(){
 }
 
 void loop(){
-    applyPID(4500);
-    Serial.println(encoder.read());
+    applyPID(4500, true);
+    // Serial.println(encoder.read());
 }
