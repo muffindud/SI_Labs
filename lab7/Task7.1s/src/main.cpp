@@ -1,6 +1,6 @@
 #define THERMISTOR_PIN 33
-#define SERIAL_BAUD 115200
 #define ANALOG_RESOLUTION 12
+#define SELF_ADDRESS 0x70
 
 #include <Arduino.h>
 #include <Wire.h>
@@ -10,10 +10,13 @@
 NTCThermistor thermistor(THERMISTOR_PIN, ANALOG_RESOLUTION);
 
 void setup(){
-    Serial.begin(SERIAL_BAUD);
+    Wire.begin(SELF_ADDRESS);
+
+    Wire.onRequest([](){
+        int temperature = thermistor.getCelsius();
+        Wire.write(temperature);
+    });
 }
 
 void loop(){
-    Serial.println(thermistor.getCelsius());
-    delay(1000);
 }
