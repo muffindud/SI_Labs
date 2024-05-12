@@ -11,11 +11,13 @@
 NTCThermistor thermistor(THERMISTOR_PIN, ANALOG_RESOLUTION);
 
 void setup(){
+    Serial.begin(SERIAL_BAUD);
     Serial1.begin(SERIAL_BAUD, SERIAL_8N1, RX_PIN, TX_PIN);
 }
 
 void loop(){
-    float temperature = thermistor.getCelsius();
-    Serial1.println(temperature);
+    int temperature = thermistor.getCelsius();
+    Serial1.write(temperature);
+    Serial.println(temperature);
     delay(1000);
 }

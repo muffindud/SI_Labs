@@ -10,6 +10,9 @@ void setup(){
 }
 
 void loop(){
-    Serial.print(Serial1.read());
-    delay(1000);
+    int data = Serial1.read();
+
+    if(data != -1){
+        Serial.println(data);
+    }
 }
