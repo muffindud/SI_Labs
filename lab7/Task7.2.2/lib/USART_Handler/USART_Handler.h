@@ -11,11 +11,13 @@ enum PacketType_T{
     HUMIDITY,
     PRESSURE,
     LIGHT,
+    PLAINTEXT,
     ERROR
 };
 
 enum Command_T{
     DATA,
+    PRINT,
     ACK,
     NACK
 };
@@ -46,5 +48,7 @@ void encodeFrame(ProtocolFrame frame, byte* buffer);
     * @param: ProtocolFrame* frame - the frame to store the decoded data
 */
 void decodeFrame(byte* buffer, ProtocolFrame* frame);
+
+void 
 
 #endif
